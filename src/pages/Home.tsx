@@ -1,5 +1,6 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import './Home.css';
+import Hello from '../components/Hello';
 
 const Home: React.FC = () => {
 	return (
@@ -15,9 +16,7 @@ const Home: React.FC = () => {
 						<IonTitle size="large">The Next Gen Email</IonTitle>
 					</IonToolbar>
 				</IonHeader>
-				<div className="container">
-					<strong>Hello, World 👋</strong>
-				</div>
+				<Hello />
 			</IonContent>
 		</IonPage>
 	);
