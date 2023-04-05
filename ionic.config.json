@@ -1,0 +1,7 @@
+{
+  "name": "the-next-gen-email",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "react-vite"
+}
