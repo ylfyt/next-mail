@@ -2,26 +2,23 @@ import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/rea
 import './Home.css';
 import Hello from '../components/Hello';
 import { useEffect } from 'react';
-import { db } from '../utils/firebase';
-import { CollectionReference, collection, getDocs, query } from 'firebase/firestore';
-import { IMail } from '../interfaces/mail';
+import { useRootContext } from '../contexts/root';
+import { useHistory } from 'react-router';
+import { signOut } from 'firebase/auth';
+import { auth } from '../utils/firebase';
 
 const Home: React.FC = () => {
-	useEffect(() => {
-		(async () => {
-			const projectCollection = collection(db, 'mails') as CollectionReference<IMail>;
-			const snap = await getDocs(query(projectCollection));
-			const temp: IMail[] = [];
-			snap.forEach((mail) => {
-				temp.push({
-					id: mail.id,
-					...mail.data(),
-				});
-			});
+	const { user, loadingUser } = useRootContext();
 
-			console.log(temp);
-		})();
-	}, []);
+	const history = useHistory();
+
+	useEffect(() => {
+		if (loadingUser || user) return;
+
+		history.replace('login');
+	}, [user, loadingUser]);
+
+	if (loadingUser || !user) return <h1>Loading...</h1>;
 
 	return (
 		<IonPage>
@@ -37,6 +34,23 @@ const Home: React.FC = () => {
 					</IonToolbar>
 				</IonHeader>
 				<Hello />
+				<div>
+					<button
+						onClick={() => {
+							signOut(auth)
+								.then(() => {
+									// Sign-out successful.
+									history.replace('login');
+								})
+								.catch((error) => {
+									// An error happened.
+									console.log(error);
+								});
+						}}
+					>
+						Logout
+					</button>
+				</div>
 			</IonContent>
 		</IonPage>
 	);

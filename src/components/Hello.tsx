@@ -1,11 +1,14 @@
 import { useState } from 'react';
 import './Hello.css';
 import { uploadFiles } from '../utils/upload-file';
+import { useRootContext } from '../contexts/root';
 
 interface HelloProps {}
 
 const Hello: React.FC<HelloProps> = () => {
 	const [files, setFiles] = useState<FileList | null>(null);
+
+	const { user } = useRootContext();
 
 	const upload = async () => {
 		if (files == null || files.length === 0) return;
@@ -16,7 +19,7 @@ const Hello: React.FC<HelloProps> = () => {
 
 	return (
 		<div className="container">
-			<strong>Hello, World 👋</strong>
+			<strong>Hello {user?.email} 👋</strong>
 			<input
 				type="file"
 				multiple
