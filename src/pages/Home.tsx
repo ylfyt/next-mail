@@ -18,13 +18,13 @@ const Home: React.FC = () => {
 		history.replace('login');
 	}, [user, loadingUser]);
 
-	if (loadingUser || !user) return <h1>Loading...</h1>;
+	if (loadingUser || !user) return <div>Loading...</div>;
 
 	return (
 		<IonPage>
 			<IonHeader>
 				<IonToolbar>
-					<IonTitle>The Next Gen Email</IonTitle>
+					<IonTitle color="dark">The Next Gen Email</IonTitle>
 				</IonToolbar>
 			</IonHeader>
 			<IonContent fullscreen>
