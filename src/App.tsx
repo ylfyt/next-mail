@@ -1,4 +1,4 @@
-import { Redirect, Route } from 'react-router-dom';
+import { Route } from 'react-router-dom';
 import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import Home from './pages/Home';
@@ -28,7 +28,7 @@ setupIonicReact();
 
 const App: React.FC = () => (
 	<IonApp>
-		<IonReactRouter>
+		<IonReactRouter basename={import.meta.env.BASE_URL}>
 			<IonRouterOutlet>
 				<Route exact path="/register">
 					<Register />
@@ -36,11 +36,8 @@ const App: React.FC = () => (
 				<Route exact path="/login">
 					<Login />
 				</Route>
-				<Route exact path="/home">
-					<Home />
-				</Route>
 				<Route exact path="/">
-					<Redirect to="/home" />
+					<Home />
 				</Route>
 			</IonRouterOutlet>
 		</IonReactRouter>

@@ -24,7 +24,7 @@ const Login: FC<LoginProps> = () => {
 		signInWithEmailAndPassword(auth, email, password)
 			.then(() => {
 				setLoading(false);
-				history.replace('home');
+				history.replace('/');
 			})
 			.catch((err) => {
 				console.log(err);
