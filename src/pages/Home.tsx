@@ -1,4 +1,5 @@
-import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar } from '@ionic/react';
+import { IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonPage, IonTitle, IonToolbar } from '@ionic/react';
+import { exitOutline } from 'ionicons/icons';
 import './Home.css';
 import Hello from '../components/Hello';
 import { useEffect } from 'react';
@@ -18,13 +19,33 @@ const Home: React.FC = () => {
 		history.replace('login');
 	}, [user, loadingUser]);
 
+	const logout = () => {
+		signOut(auth)
+			.then(() => {
+				history.replace('login');
+			})
+			.catch((error) => {
+				console.log(error);
+			});
+	};
+
 	if (loadingUser || !user) return <div>Loading...</div>;
 
 	return (
 		<IonPage>
 			<IonHeader>
 				<IonToolbar>
-					<IonTitle color="dark">The Next Gen Email</IonTitle>
+					<IonButtons slot="primary">
+						<IonButton
+							onClick={() => {
+								logout();
+							}}
+							color="danger"
+						>
+							<IonIcon icon={exitOutline}></IonIcon>
+						</IonButton>
+					</IonButtons>
+					<IonTitle>Next Email</IonTitle>
 				</IonToolbar>
 			</IonHeader>
 			<IonContent fullscreen>
@@ -34,23 +55,6 @@ const Home: React.FC = () => {
 					</IonToolbar>
 				</IonHeader>
 				<Hello />
-				<div>
-					<button
-						onClick={() => {
-							signOut(auth)
-								.then(() => {
-									// Sign-out successful.
-									history.replace('login');
-								})
-								.catch((error) => {
-									// An error happened.
-									console.log(error);
-								});
-						}}
-					>
-						Logout
-					</button>
-				</div>
 			</IonContent>
 		</IonPage>
 	);
