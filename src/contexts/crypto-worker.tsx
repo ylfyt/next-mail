@@ -12,7 +12,7 @@ const WebWorkerContext = createContext<IWebWorkerContext>({
 	},
 });
 
-export const useWebWorkerContext = () => {
+export const useCryptoWorkerContext = () => {
 	return useContext(WebWorkerContext);
 };
 
@@ -50,10 +50,13 @@ const CryptoWorkerProvider: FC<CryptoWorkerProviderProps> = ({ children }) => {
 				};
 				worker.postMessage(req);
 			} catch (error) {
+				console.log('err', error);
+
 				const res: ICryptoResponse = {
 					id,
 					message: 'Failed to execute worker',
 					success: false,
+					data: '',
 				};
 				if (error instanceof Error) {
 					res.message = error.message;

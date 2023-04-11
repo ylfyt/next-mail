@@ -7,10 +7,11 @@ import { useRootContext } from '../contexts/root';
 import { useHistory } from 'react-router';
 import { signOut } from 'firebase/auth';
 import { auth } from '../utils/firebase';
+import { useCryptoWorkerContext } from '../contexts/crypto-worker';
 
 const Home: React.FC = () => {
 	const { user, loadingUser } = useRootContext();
-
+	const { runCrypto } = useCryptoWorkerContext();
 	const history = useHistory();
 
 	useEffect(() => {
@@ -28,6 +29,16 @@ const Home: React.FC = () => {
 				console.log(error);
 			});
 	};
+
+	useEffect(() => {
+		(async () => {
+			const res = await runCrypto('encrypt', '1234567890abf', '1234567890abcdef');
+			console.log('ec', res);
+
+			const dec = await runCrypto('decrypt', res.data!, '1234567890abcdef');
+			console.log('dc', dec);
+		})();
+	}, []);
 
 	if (loadingUser || !user) return <div>Loading...</div>;
 

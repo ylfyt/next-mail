@@ -1,6 +1,9 @@
 import { decrypt, encrypt } from '../algorithms/shuffle-aes';
 import { ICryptoRequest } from '../interfaces/crypto-request';
 import { ICryptoResponse } from '../interfaces/crypto-response';
+import { base64ToBuff } from '../utils/base64-to-buff';
+import { buffToBase64 } from '../utils/buff-to-base64';
+import { bytesToStr } from '../utils/bytes-to-str';
 import { strToBytes } from '../utils/str-to-bytes';
 
 console.log('Crypto handler has started');
@@ -11,21 +14,7 @@ self.onmessage = async (e: MessageEvent<ICryptoRequest>) => {
 
 	const result = await handler(req);
 
-	if (!result.success) {
-		self.postMessage(result);
-		return;
-	}
-
-	const data = result.data;
-	const response: ICryptoResponse = {
-		id: result.id,
-		message: result.message,
-		success: result.success,
-	};
-	self.postMessage(response);
-	self.postMessage(data, {
-		transfer: [data!.buffer],
-	});
+	self.postMessage(result);
 };
 
 const handler = async (req: ICryptoRequest): Promise<ICryptoResponse> => {
@@ -35,14 +24,16 @@ const handler = async (req: ICryptoRequest): Promise<ICryptoResponse> => {
 			id: req.id,
 			success: false,
 			message: 'Action should be encrypt or decrypt',
+			data: '',
 		};
 
 	const key = req.key;
-	if (!key || key.length === 0)
+	if (!key || key.length !== 16)
 		return {
 			id: req.id,
 			success: false,
-			message: 'Key is required',
+			message: 'Key length should be 16 chars',
+			data: '',
 		};
 
 	if (!req.data)
@@ -50,10 +41,11 @@ const handler = async (req: ICryptoRequest): Promise<ICryptoResponse> => {
 			id: req.id,
 			success: false,
 			message: 'Data is required',
+			data: '',
 		};
 
 	try {
-		const data = new Uint8Array(strToBytes(req.data));
+		const data = action === 'encrypt' ? new Uint8Array(strToBytes(req.data)) : base64ToBuff(req.data);
 
 		const resolver = action === 'encrypt' ? encrypt : decrypt;
 		const result = resolver(data, key);
@@ -61,7 +53,7 @@ const handler = async (req: ICryptoRequest): Promise<ICryptoResponse> => {
 		return {
 			id: req.id,
 			success: true,
-			data: result,
+			data: action === 'encrypt' ? await buffToBase64(result) : bytesToStr(result),
 			message: '',
 		};
 	} catch (error) {
@@ -70,6 +62,7 @@ const handler = async (req: ICryptoRequest): Promise<ICryptoResponse> => {
 			id: req.id,
 			success: false,
 			message: err.message,
+			data: '',
 		};
 	}
 };
