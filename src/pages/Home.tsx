@@ -8,10 +8,12 @@ import { useHistory } from 'react-router';
 import { signOut } from 'firebase/auth';
 import { auth } from '../utils/firebase';
 import { useCryptoWorkerContext } from '../contexts/crypto-worker';
+import { useHelperContext } from '../contexts/helper';
 
 const Home: React.FC = () => {
 	const { user, loadingUser } = useRootContext();
 	const { runCrypto } = useCryptoWorkerContext();
+	const { showToast } = useHelperContext();
 	const history = useHistory();
 
 	useEffect(() => {
@@ -34,9 +36,11 @@ const Home: React.FC = () => {
 		(async () => {
 			const res = await runCrypto('encrypt', '1234567890abf', '1234567890abcdef');
 			console.log('ec', res);
+			showToast(res.data);
 
 			const dec = await runCrypto('decrypt', res.data!, '1234567890abcdef');
 			console.log('dc', dec);
+			showToast(dec.data);
 		})();
 	}, []);
 

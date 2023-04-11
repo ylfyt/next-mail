@@ -1,10 +1,13 @@
 import { IonContent, IonPage } from '@ionic/react';
 import { createUserWithEmailAndPassword } from 'firebase/auth';
 import { FC, useEffect, useState } from 'react';
-import { auth } from '../utils/firebase';
+import { auth, db } from '../utils/firebase';
 import { useHistory } from 'react-router';
 import { Link } from 'react-router-dom';
 import LoadingButton from '../components/loading-button';
+import { useHelperContext } from '../contexts/helper';
+import { IUserInfo } from '../interfaces/user-info';
+import { doc, setDoc } from 'firebase/firestore';
 
 interface RegisterProps {}
 
@@ -13,6 +16,8 @@ const Register: FC<RegisterProps> = () => {
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 
+	const { showToast } = useHelperContext();
+
 	const history = useHistory();
 
 	useEffect(() => {
@@ -20,18 +25,27 @@ const Register: FC<RegisterProps> = () => {
 	}, []);
 
 	const register = async () => {
-		setLoading(true);
-		createUserWithEmailAndPassword(auth, email, password)
-			.then(() => {
-				setLoading(false);
-				history.replace('/');
-			})
-			.catch((err) => {
-				console.log(err);
-			})
-			.finally(() => {
-				setLoading(false);
-			});
+		try {
+			setLoading(true);
+			const cred = await createUserWithEmailAndPassword(auth, email, password);
+			const info: IUserInfo = {
+				id: cred.user.uid,
+				email: email,
+				publicKey: '',
+			};
+			await setDoc(doc(db, 'userInfo', info.email), info);
+
+			setLoading(false);
+			history.replace('/');
+		} catch (err) {
+			setLoading(false);
+			console.log(err);
+			if (err instanceof Error) {
+				if (err?.message?.includes('email-already-in-use')) {
+					showToast('Email already in use');
+				}
+			}
+		}
 	};
 
 	return (

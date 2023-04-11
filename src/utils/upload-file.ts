@@ -20,8 +20,9 @@ export const uploadFiles = async (files: FileList, senderId: string, receiverId:
 				return 'Failed to upload attachments';
 			}
 			uploaded.push({
-				fileName: `${fileName}.${fileExt.ext}`,
+				fileName: `${fileName}`,
 				originalFileName: fileExt.name,
+				ext: fileExt.ext,
 			});
 		}
 

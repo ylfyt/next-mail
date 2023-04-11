@@ -5,6 +5,7 @@ import { auth } from '../utils/firebase';
 import { useHistory } from 'react-router';
 import { Link } from 'react-router-dom';
 import LoadingButton from '../components/loading-button';
+import { useHelperContext } from '../contexts/helper';
 
 interface LoginProps {}
 
@@ -15,23 +16,22 @@ const Login: FC<LoginProps> = () => {
 
 	const history = useHistory();
 
+	const { showToast } = useHelperContext();
+
 	useEffect(() => {
 		setLoading(false);
 	}, []);
 
 	const login = async () => {
-		setLoading(true);
-		signInWithEmailAndPassword(auth, email, password)
-			.then(() => {
-				setLoading(false);
-				history.replace('/');
-			})
-			.catch((err) => {
-				console.log(err);
-			})
-			.finally(() => {
-				setLoading(false);
-			});
+		try {
+			setLoading(true);
+			await signInWithEmailAndPassword(auth, email, password);
+			setLoading(false);
+			history.replace('/');
+		} catch (err) {
+			setLoading(false);
+			showToast('Email or password is incorrect');
+		}
 	};
 
 	return (
