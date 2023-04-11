@@ -1,5 +1,5 @@
 import { Route } from 'react-router-dom';
-import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
+import { IonApp, IonRouterOutlet, IonToast, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import Home from './pages/Home';
 
@@ -23,25 +23,38 @@ import '@ionic/react/css/display.css';
 import './theme/variables.css';
 import Register from './pages/register';
 import Login from './pages/login';
+import { useHelperContext } from './contexts/helper';
 
 setupIonicReact();
 
-const App: React.FC = () => (
-	<IonApp>
-		<IonReactRouter basename={import.meta.env.BASE_URL}>
-			<IonRouterOutlet>
-				<Route exact path="/register">
-					<Register />
-				</Route>
-				<Route exact path="/login">
-					<Login />
-				</Route>
-				<Route exact path="/">
-					<Home />
-				</Route>
-			</IonRouterOutlet>
-		</IonReactRouter>
-	</IonApp>
-);
+const App: React.FC = () => {
+	const { isToastOpen, toastDuration, toastMessage, setIsToastOpen } = useHelperContext();
+
+	return (
+		<IonApp>
+			<IonReactRouter basename={import.meta.env.BASE_URL}>
+				<IonRouterOutlet>
+					<Route exact path="/register">
+						<Register />
+					</Route>
+					<Route exact path="/login">
+						<Login />
+					</Route>
+					<Route exact path="/">
+						<Home />
+					</Route>
+				</IonRouterOutlet>
+			</IonReactRouter>
+			<IonToast
+				message={toastMessage}
+				isOpen={isToastOpen}
+				duration={toastDuration}
+				onDidDismiss={() => {
+					setIsToastOpen(false);
+				}}
+			/>
+		</IonApp>
+	);
+};
 
 export default App;

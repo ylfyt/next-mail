@@ -2,6 +2,7 @@ import { useState } from 'react';
 import './Hello.css';
 import { uploadFiles } from '../utils/upload-file';
 import { useRootContext } from '../contexts/root';
+import { useHelperContext } from '../contexts/helper';
 
 interface HelloProps {}
 
@@ -9,12 +10,19 @@ const Hello: React.FC<HelloProps> = () => {
 	const [files, setFiles] = useState<FileList | null>(null);
 
 	const { user } = useRootContext();
+	const { showToast } = useHelperContext();
 
 	const upload = async () => {
 		if (files == null || files.length === 0) return;
 		const fileNames = await uploadFiles(files, 'ok', 'ok');
 
+		if (typeof fileNames === 'string') {
+			showToast(fileNames);
+			return;
+		}
+
 		console.log(fileNames);
+		showToast(`Uploaded ${fileNames.length} files`);
 	};
 
 	return (
