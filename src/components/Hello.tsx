@@ -3,7 +3,7 @@ import './Hello.css';
 import { uploadFiles } from '../utils/upload-file';
 import { useRootContext } from '../contexts/root';
 import { useHelperContext } from '../contexts/helper';
-import { DocumentReference, addDoc, collection, doc, getDoc, getDocs } from 'firebase/firestore';
+import { DocumentReference, addDoc, collection, doc, getDoc } from 'firebase/firestore';
 import { db } from '../utils/firebase';
 import { IUserInfo } from '../interfaces/user-info';
 import { IAttachment } from '../interfaces/attachment';
@@ -19,13 +19,14 @@ const Hello: React.FC<HelloProps> = () => {
 	const { user } = useRootContext();
 	const { showToast } = useHelperContext();
 
-	const sendMail = async (attachments: IAttachment[], senderId: string, receiverId: string): Promise<IMail | null> => {
+	const sendMail = async (attachments: IAttachment[], senderInfo: IUserInfo, receiverId: string): Promise<IMail | null> => {
 		const mail: IMail = {
 			attachments,
 			body: 'Hello, World',
 			receiverId,
-			senderId,
+			senderInfo,
 			subject: 'HELLO',
+			createdAt: new Date().getTime(),
 		};
 		try {
 			const docRef = await addDoc(collection(db, 'mail'), mail);
@@ -41,8 +42,8 @@ const Hello: React.FC<HelloProps> = () => {
 	const send = async () => {
 		try {
 			setLoading(true);
-			const userRef = doc(db, 'userInfo', 'yalfayat@gmail.com') as DocumentReference<IUserInfo>;
-			const receiver = await getDoc(userRef);
+			const receiverRef = doc(db, 'userInfo', 'yalfayat@gmail.com') as DocumentReference<IUserInfo>;
+			const receiver = await getDoc(receiverRef);
 
 			if (!receiver.exists() || !receiver.data()) {
 				setLoading(false);
@@ -50,15 +51,23 @@ const Hello: React.FC<HelloProps> = () => {
 				return;
 			}
 
-			const fileNames = await uploadFiles(files!, user!.uid, receiver.data().id);
+			const attch = await uploadFiles(files!, user!.uid, receiver.data().id);
 
-			if (typeof fileNames === 'string') {
+			if (typeof attch === 'string') {
 				setLoading(false);
-				showToast(fileNames);
+				showToast(attch);
 				return;
 			}
 
-			const mail = await sendMail(fileNames, user!.uid, receiver.data().id);
+			const mail = await sendMail(
+				attch,
+				{
+					email: user!.email!,
+					id: user!.uid,
+					publicKey: '',
+				},
+				receiver.data().id
+			);
 
 			setLoading(false);
 			console.log(mail);
