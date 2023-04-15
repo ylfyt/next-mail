@@ -5,13 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "ionic serve",
+    "dev:android": "ionic capacitor run android --livereload --external",
     "build": "tsc && vite build",
-    "preview": "vite preview",
-    "test.e2e": "cypress run",
-    "test.unit": "vitest",
-    "lint": "eslint",
-    "sync:android": "ionic capacitor sync android",
-    "dev:android": "ionic capacitor run android --livereload --external"
+    "build:android": "tsc && vite build --mode production:android && capacitor sync android && cd android && .\\gradlew assembleDebug"
   },
   "dependencies": {
     "@capacitor/android": "4.7.3",
