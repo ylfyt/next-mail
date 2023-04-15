@@ -1,4 +1,4 @@
-package io.ionic.starter;
+package com.mail.next;
 
 import com.getcapacitor.BridgeActivity;
 

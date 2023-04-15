@@ -1,8 +1,8 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'io.ionic.starter',
-  appName: 'the-next-gen-email',
+  appId: 'com.mail.next',
+  appName: 'Next Mail',
   webDir: 'dist',
   bundledWebRuntime: false
 };
