@@ -1,5 +1,5 @@
-import { IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonPage, IonTitle, IonToolbar } from '@ionic/react';
-import { exitOutline, manOutline } from 'ionicons/icons';
+import { IonButton, IonButtons, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonMenu, IonMenuButton, IonNavLink, IonPage, IonTitle, IonToolbar } from '@ionic/react';
+import { exitOutline, manOutline, pencilSharp } from 'ionicons/icons';
 import './Home.css';
 import Hello from '../components/Hello';
 import { useEffect, useState } from 'react';
@@ -10,7 +10,9 @@ import { auth, db } from '../utils/firebase';
 import { useCryptoWorkerContext } from '../contexts/crypto-worker';
 import { useHelperContext } from '../contexts/helper';
 import { IMail } from '../interfaces/mail';
-import { CollectionReference, collection, getDocs, query, where } from 'firebase/firestore';
+import { CollectionReference, collection, getDocs, or, query, where } from 'firebase/firestore';
+import {useLocation} from 'react-router-dom'
+import Menu from "../components/menu";
 
 const Home: React.FC = () => {
 	const [mails, setMails] = useState<IMail[]>([]);
@@ -58,63 +60,74 @@ const Home: React.FC = () => {
 
 	if (loadingUser || !user) return <div>Loading...</div>;
 
+	const compose = () => {
+		history.push("/compose");
+	};
+
+
 	return (
-		<IonPage>
-			<IonHeader>
-				<IonToolbar>
-					<IonButtons slot="primary">
-						<IonButton
-							onClick={() => {
-								logout();
-							}}
-							color="danger"
-						>
-							<IonIcon icon={exitOutline}></IonIcon>
-						</IonButton>
-					</IonButtons>
-					<IonTitle>Next Email</IonTitle>
-				</IonToolbar>
-			</IonHeader>
-			<IonContent fullscreen>
-				<IonHeader collapse="condense">
+		<>
+			<Menu/>
+			<IonPage id='home'>
+				<IonHeader>
 					<IonToolbar>
-						<IonTitle size="large">The Next Gen Email</IonTitle>
+						<IonButtons slot="start">
+							<IonMenuButton></IonMenuButton>
+						</IonButtons>
+						<IonButtons slot="primary">
+							<IonButton onClick={logout} color="danger">
+								<IonIcon icon={exitOutline}></IonIcon>
+							</IonButton>
+						</IonButtons>
+						<IonTitle>Next Email</IonTitle>
 					</IonToolbar>
 				</IonHeader>
-				<div className="h-full flex flex-col items-center text-black mt-4 md:w-1/2 md:mx-auto">
-					<table className="w-full text-sm text-left text-gray-500">
-						<thead className="text-xs text-gray-700 uppercase bg-gray-50">
-							<tr>
-								<th scope="col" className="px-6 py-3">
-									Sender
-								</th>
-								<th scope="col" className="px-6 py-3">
-									Subject
-								</th>
-								<th scope="col" className="px-6 py-3">
-									Body
-								</th>
-								<th scope="col" className="px-6 py-3">
-									Sent date
-								</th>
-							</tr>
-						</thead>
-						<tbody>
-							{mails.map((mail, idx) => {
-								return (
-									<tr key={idx} className={`bg-white border-b ${mail.readAt ? '' : 'text-gray-900 font-bold'}`}>
-										<td className="px-1 py-2">{mail.senderInfo?.email}</td>
-										<td className="px-1 py-4">{mail.subject}</td>
-										<td className="px-1 py-4">{mail.body}</td>
-										<td className="px-1 py-4">{new Date(mail.createdAt).toLocaleString()}</td>
-									</tr>
-								);
-							})}
-						</tbody>
-					</table>
-				</div>
-			</IonContent>
-		</IonPage>
+				<IonContent fullscreen>
+					<IonHeader collapse="condense">
+						<IonToolbar>
+							<IonTitle size="large">The Next Gen Email</IonTitle>
+						</IonToolbar>
+					</IonHeader>
+					<div className="h-full flex flex-col items-center text-black mt-4 md:w-1/2 md:mx-auto">
+						<table className="w-full text-sm text-left text-gray-500">
+							<thead className="text-xs text-gray-700 uppercase bg-gray-50">
+								<tr>
+									<th scope="col" className="px-6 py-3">
+										Sender
+									</th>
+									<th scope="col" className="px-6 py-3">
+										Subject
+									</th>
+									<th scope="col" className="px-6 py-3">
+										Body
+									</th>
+									<th scope="col" className="px-6 py-3">
+										Sent date
+									</th>
+								</tr>
+							</thead>
+							<tbody>
+								{mails.map((mail, idx) => {
+									return (
+										<tr key={idx} className={`bg-white border-b ${mail.readAt ? '' : 'text-gray-900 font-bold'}`}>
+											<td className="px-1 py-2">{mail.senderInfo?.email}</td>
+											<td className="px-1 py-4">{mail.subject}</td>
+											<td className="px-1 py-4">{mail.body}</td>
+											<td className="px-1 py-4">{new Date(mail.createdAt).toLocaleString()}</td>
+										</tr>
+									);
+								})}
+							</tbody>
+						</table>
+					</div>
+					<IonFab slot="fixed" vertical="bottom" horizontal="end">
+						<IonFabButton onClick={compose}>
+							<IonIcon icon={pencilSharp}/>
+						</IonFabButton>
+					</IonFab>
+				</IonContent>
+			</IonPage>
+		</>
 	);
 };
 

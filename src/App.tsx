@@ -23,6 +23,7 @@ import '@ionic/react/css/display.css';
 import './theme/variables.css';
 import Register from './pages/register';
 import Login from './pages/login';
+import Compose from "./pages/compose";
 import { useHelperContext } from './contexts/helper';
 
 setupIonicReact();
@@ -42,6 +43,9 @@ const App: React.FC = () => {
 					</Route>
 					<Route exact path="/">
 						<Home />
+					</Route>
+					<Route exact path="/compose">
+						<Compose />
 					</Route>
 				</IonRouterOutlet>
 			</IonReactRouter>

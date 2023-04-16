@@ -27,7 +27,7 @@ const Login: FC<LoginProps> = () => {
 			setLoading(true);
 			await signInWithEmailAndPassword(auth, email, password);
 			setLoading(false);
-			history.replace('/');
+			history.replace('/', {state : {email: email}});
 		} catch (err) {
 			setLoading(false);
 			showToast('Email or password is incorrect');
