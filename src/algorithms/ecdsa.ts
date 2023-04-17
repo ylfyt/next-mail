@@ -1,5 +1,4 @@
 import Sha3 from './sha3';
-// import { generatePrivateKey } from './privatekeyGenerator';
 import { 
   encodeSignature,
   decodeSignature,
