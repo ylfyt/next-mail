@@ -1,24 +1,21 @@
-import { IonButton, IonButtons, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonMenu, IonMenuButton, IonNavLink, IonPage, IonTitle, IonToolbar } from '@ionic/react';
-import { exitOutline, manOutline, pencilSharp } from 'ionicons/icons';
+import { IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonMenuButton, IonPage, IonTitle, IonToolbar } from '@ionic/react';
+import { exitOutline } from 'ionicons/icons';
 import './Home.css';
 import { useEffect, useState } from 'react';
 import { useRootContext } from '../contexts/root';
 import { useHistory } from 'react-router';
 import { signOut } from 'firebase/auth';
 import { auth, db } from '../utils/firebase';
-import { useCryptoWorkerContext } from '../contexts/crypto-worker';
-import { useHelperContext } from '../contexts/helper';
 import { IMail } from '../interfaces/mail';
-import { CollectionReference, collection, getDocs, or, query, where } from 'firebase/firestore';
+import { CollectionReference, collection, getDocs, query, where } from 'firebase/firestore';
 import Menu from '../components/menu';
 import ComposeFab from '../components/Compose-fab';
 import { IMessage, ISignedMessage } from '../interfaces/message';
+import { suffleDecrypt } from '../algorithms/shuffle-aes';
 
 const Home: React.FC = () => {
 	const [mails, setMails] = useState<IMail[]>([]);
 	const { user, loadingUser } = useRootContext();
-	const { runCrypto } = useCryptoWorkerContext();
-	const { showToast } = useHelperContext();
 	const history = useHistory();
 
 	useEffect(() => {
@@ -115,6 +112,10 @@ const Home: React.FC = () => {
 											subject = message.subject;
 											body = message.body;
 										}
+									} else {
+										// TODO: DELETE THIS
+										const msg = suffleDecrypt(mail.message, '1234567890abcdef');
+										console.log(msg);
 									}
 
 									return (

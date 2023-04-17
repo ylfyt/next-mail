@@ -1,3 +1,6 @@
+import { base64ToBuff } from '../utils/base64-to-buff';
+import { buffToBase64 } from '../utils/buff-to-base64';
+import { bytesToStr } from '../utils/bytes-to-str';
 import { strToBytes } from '../utils/str-to-bytes';
 
 const hexDigitToNumber = (digit: string): number | undefined => {
@@ -114,23 +117,20 @@ const array2Matrix = (data: number[], size: number): number[][] => {
 
 const getBlock = (data: Uint8Array, part: number): number[] => {
 	const block: number[] = [];
-  let first = true
+	let first = true;
 	for (let i = 0; i < 16; i++) {
 		const idx = part * 16 + i;
 		const el = data[idx];
 
-		if (typeof el !== 'undefined') block.push(el)
-    else {
-      if (first)
-      {
-        first = false
-        block.push(66)
-      }
-      else {
-        block.push(65)
-      }
-    }
-    
+		if (typeof el !== 'undefined') block.push(el);
+		else {
+			if (first) {
+				first = false;
+				block.push(66);
+			} else {
+				block.push(65);
+			}
+		}
 	}
 
 	return block;
@@ -464,18 +464,18 @@ const invMixColumns = (state: number[][]) => {
 };
 
 const executeEncrypt = (block: number[][], keys: number[][]) => {
-  let result = copyMatrix(block);
-	
-  let key = getKey(keys, 0);
-  result = addRoundKey(result, key);
-  
-  for (let i = 1; i < NUM_OF_ROUND+1; i++) {
-    let key = getKey(keys, i);
-    
-    result = subBytes(result);
+	let result = copyMatrix(block);
+
+	let key = getKey(keys, 0);
+	result = addRoundKey(result, key);
+
+	for (let i = 1; i < NUM_OF_ROUND + 1; i++) {
+		let key = getKey(keys, i);
+
+		result = subBytes(result);
 		result = suffleMatrix(result, key);
 		result = addRoundKey(result, key);
-  }
+	}
 
 	return result;
 };
@@ -483,13 +483,13 @@ const executeEncrypt = (block: number[][], keys: number[][]) => {
 const executeDecrypt = (block: number[][], keys: number[][]): number[][] => {
 	let result = copyMatrix(block);
 
-  for (let i = NUM_OF_ROUND; i >= 1; i--) {
-    let key = getKey(keys, i);
-    
+	for (let i = NUM_OF_ROUND; i >= 1; i--) {
+		let key = getKey(keys, i);
+
 		result = addRoundKey(result, key);
-    result = invSuffleMatrix(result, key);
+		result = invSuffleMatrix(result, key);
 		result = invSubBytes(result);
-  }
+	}
 
 	let key = getKey(keys, 0);
 	result = addRoundKey(result, key);
@@ -497,28 +497,27 @@ const executeDecrypt = (block: number[][], keys: number[][]): number[][] => {
 	return result;
 };
 
-export const encrypt = (data: Uint8Array, keyStr: string): Uint8Array => {
+const encrypt = (data: Uint8Array, keyStr: string): Uint8Array => {
 	let numOfBlocks = div(data.length, 16);
-  let pad = 0
+	let pad = 0;
 	if (data.length % 16 !== 0) {
-    pad = 16 - (data.length % 16)
+		pad = 16 - (data.length % 16);
 		numOfBlocks++;
 	}
 
-  if (pad != 0) {
-    const newData = new Uint8Array(data.length + pad)
-    newData.set(data)
-    newData.set(Array(pad).fill(0), data.length)
-    data = newData
-  }
-  
+	if (pad != 0) {
+		const newData = new Uint8Array(data.length + pad);
+		newData.set(data);
+		newData.set(Array(pad).fill(0), data.length);
+		data = newData;
+	}
 
 	const keys = expansionKey(strToBytes(keyStr));
 	// console.log(keys);
 
 	for (let part = 0; part < numOfBlocks; part++) {
 		let block = array2Matrix(getBlock(data, part), 4);
-  
+
 		block = executeEncrypt(block, keys);
 
 		for (let j = 0; j < 4; j++) {
@@ -532,7 +531,7 @@ export const encrypt = (data: Uint8Array, keyStr: string): Uint8Array => {
 	return data;
 };
 
-export const decrypt = (data: Uint8Array, keyStr: string): Uint8Array => {
+const decrypt = (data: Uint8Array, keyStr: string): Uint8Array => {
 	let numOfBlocks = div(data.length, 16);
 	if (data.length % 16 !== 0) {
 		numOfBlocks++;
@@ -545,7 +544,7 @@ export const decrypt = (data: Uint8Array, keyStr: string): Uint8Array => {
 		let block = array2Matrix(getBlock(data, i), 4);
 
 		block = executeDecrypt(block, keys);
-    
+
 		for (let j = 0; j < 4; j++) {
 			for (let k = 0; k < 4; k++) {
 				const el = block[k][j];
@@ -555,4 +554,17 @@ export const decrypt = (data: Uint8Array, keyStr: string): Uint8Array => {
 	}
 
 	return data;
+};
+
+export const suffleEncrypt = (message: string, key: string) => {
+	const data = new Uint8Array(strToBytes(message));
+	const result = encrypt(data, key);
+	return buffToBase64(result);
+};
+
+export const suffleDecrypt = (message: string, key: string) => {
+	const data = base64ToBuff(message);
+	const result = decrypt(data, key);
+
+	return bytesToStr(result);
 };

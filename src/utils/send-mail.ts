@@ -1,11 +1,11 @@
 import { DocumentReference, addDoc, collection, doc, getDoc } from 'firebase/firestore';
 import { IUserInfo } from '../interfaces/user-info';
 import { db } from './firebase';
-import { IAttachment } from '../interfaces/attachment';
 import { IMail } from '../interfaces/mail';
 import { uploadFiles } from './upload-file';
 import { User } from 'firebase/auth';
 import { IMessage, ISignedMessage } from '../interfaces/message';
+import { suffleEncrypt } from '../algorithms/shuffle-aes';
 
 const saveMail = async (senderInfo: IUserInfo, receiverId: string, message: string, isEncrypted: boolean): Promise<IMail | null> => {
 	const mail: IMail = {
@@ -68,7 +68,7 @@ export const sendMail = async (user: User, receiverEmail: string, { files, subje
 		let isEncrypted = false;
 		if (encryptionKey) {
 			isEncrypted = true;
-			encrypted = encrypted;
+			encrypted = await suffleEncrypt(encrypted, encryptionKey);
 		}
 
 		const mail = await saveMail(

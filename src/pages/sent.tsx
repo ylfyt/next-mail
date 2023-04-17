@@ -1,4 +1,4 @@
-import { IonPage, IonButtons, IonHeader, IonContent, IonToolbar, IonTitle, IonInput, IonItem, IonTextarea, IonIcon, IonButton, IonMenuButton } from "@ionic/react";
+import { IonPage, IonButtons, IonHeader, IonContent, IonToolbar, IonTitle, IonIcon, IonButton, IonMenuButton } from "@ionic/react";
 import { useHistory, useLocation } from "react-router";
 import { exitOutline } from 'ionicons/icons';
 import "./compose.css";
@@ -7,7 +7,6 @@ import { auth, db } from "../utils/firebase";
 import Menu from "../components/menu";
 import { collection, CollectionReference, getDocs, query, where } from "firebase/firestore";
 import { useState, useEffect } from "react";
-import { useCryptoWorkerContext } from "../contexts/crypto-worker";
 import { useHelperContext } from "../contexts/helper";
 import { useRootContext } from "../contexts/root";
 import { IMail } from "../interfaces/mail";
@@ -19,7 +18,6 @@ const Sent: React.FC = () => {
 
 	const [mails, setMails] = useState<IMail[]>([]);
 	const { user, loadingUser } = useRootContext();
-	const { runCrypto } = useCryptoWorkerContext();
 	const { showToast } = useHelperContext();
 	const history = useHistory();
 

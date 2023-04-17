@@ -53,7 +53,7 @@ const Compose: React.FC = () => {
       history.replace('/')
     }
 
-    const disableSend = !message || !receiver || !subject || (sign && !signatureKey) || (encrypt && !encryptionKey)
+    const disableSend = !message || !receiver || !subject || (sign && !signatureKey) || (encrypt && encryptionKey.length !== 16)
 
     return (
         <IonPage>
