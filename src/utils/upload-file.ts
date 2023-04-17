@@ -4,7 +4,7 @@ import { storage } from './firebase';
 import { getFileExtension } from './get-file-extension';
 import { v4 } from 'uuid';
 
-export const uploadFiles = async (files: FileList, senderId: string, receiverId: string): Promise<IAttachment[] | string> => {
+export const uploadFiles = async (files: File[], senderId: string, receiverId: string): Promise<IAttachment[] | string> => {
 	try {
 		const uploaded: IAttachment[] = [];
 

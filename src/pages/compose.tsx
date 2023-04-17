@@ -3,29 +3,21 @@ import { useHistory } from "react-router";
 import { sendSharp, documentAttachSharp, documentTextSharp } from 'ionicons/icons';
 import "./compose.css";
 import { useRootContext } from "../contexts/root";
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import LoadingButton from "../components/loading-button";
+import { sendMail } from "../utils/send-mail";
+import { useHelperContext } from "../contexts/helper";
 
 const Compose: React.FC = () => {
-    const history = useHistory();
-    const { user, loadingUser } = useRootContext();
+    const history = useHistory()
+    const { user } = useRootContext();
+    const { showToast } = useHelperContext(); 
 
-    const [sender, setSender] = useState<String>();
-    const [receiver, setReceiver] = useState();
-    const [subject, setSubject] = useState();
-    const [message, setMessage] = useState<String>();
+    const [loading, setLoading] = useState(false) 
+    const [receiver, setReceiver] = useState<string>('');
+    const [subject, setSubject] = useState<string>('');
+    const [message, setMessage] = useState<string>('');
     const [files, setFiles] = useState<File[]>([]);
-
-
-    useEffect(() => {
-        if (loadingUser || user) {
-            if (user?.email) {
-                setSender(user?.email);
-            }
-            return;
-        }
-
-        history.replace('login');
-    }, [user, loadingUser])
 
     const openFileDialog = () => {
         (document as any).getElementById("file-upload").click();
@@ -34,6 +26,20 @@ const Compose: React.FC = () => {
     const addFile = (_event: any) => {
         let newFile = _event.target.files![0];
         setFiles([...files, newFile])
+    }
+
+    const send = async () => {
+      setLoading(true)
+      const res = await sendMail(user!, receiver, files, subject, message)
+      setLoading(false)
+
+      if (typeof res === 'string') {
+        showToast(res)
+        return
+      }
+      
+      showToast('Success')
+      history.replace('/')
     }
 
     return (
@@ -48,25 +54,22 @@ const Compose: React.FC = () => {
                         <IonButton onClick={openFileDialog}>
                             <IonIcon icon={documentAttachSharp} />
                         </IonButton>
-                        <IonButton>
-                            <IonIcon icon={sendSharp} />
-                        </IonButton>
                     </IonButtons>
                     <IonTitle>Compose</IonTitle>
                 </IonToolbar>
             </IonHeader>
             <IonContent className="ion-padding">
                 <IonItem>
-                    <IonInput label="From" value={user?.email} labelPlacement="fixed" readonly={true}></IonInput>
+                    <IonInput aria-label="from"  label="From" value={user?.email} labelPlacement="fixed" readonly={true}></IonInput>
                 </IonItem>
                 <IonItem>
-                    <IonInput label="To" labelPlacement="fixed" onIonChange={(e: any) => { setReceiver(e.target.value) }}></IonInput>
+                    <IonInput aria-label="to" type="email" label="To" labelPlacement="fixed" placeholder="Receiver" onIonChange={(e: any) => { setReceiver(e.target.value) }}></IonInput>
                 </IonItem>
                 <IonItem>
-                    <IonInput placeholder="Subject" onIonChange={(e: any) => { setSubject(e.target.value) }}></IonInput>
+                    <IonInput aria-label="subject" placeholder="Subject" onIonChange={(e: any) => { setSubject(e.target.value) }}></IonInput>
                 </IonItem>
                 <IonItem>
-                    <IonTextarea placeholder="Compose email" autoGrow={true} onIonChange={(e: any) => { setMessage(e.target.value) }}></IonTextarea>
+                    <IonTextarea aria-label="body" placeholder="Compose email" autoGrow={true} onIonChange={(e: any) => { setMessage(e.target.value) }}></IonTextarea>
                 </IonItem>
                 {files.map(file => {
                     return (
@@ -76,6 +79,12 @@ const Compose: React.FC = () => {
                         </IonItem>
                     )
                 })}
+
+                <div className="flex justify-end mt-10 mr-6">
+                  <LoadingButton onClick={send} loading={loading} disabled={!message || !receiver || !subject} className="text-2xl align-middle">
+                      <IonIcon className="" icon={sendSharp}/>
+                  </LoadingButton>
+                </div>
             </IonContent>
         </IonPage>
     );
