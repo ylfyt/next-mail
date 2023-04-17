@@ -4,35 +4,35 @@ import "./menu.css";
 import { Link } from "react-router-dom";
 
 const Menu: React.FC = () => {
-	return (
-		<>
+    return (
+        <>
             <IonMenu contentId="menu">
-				<IonHeader>
-					<IonToolbar color="tertiary">
-						<IonTitle>Next Email</IonTitle>
-					</IonToolbar>
-				</IonHeader>
-				<IonContent className="ion-padding">
+                <IonHeader>
+                    <IonToolbar color="tertiary">
+                        <IonTitle>Next Email</IonTitle>
+                    </IonToolbar>
+                </IonHeader>
+                <IonContent className="ion-padding">
                     <IonList lines="none">
-                        <br/>
+                        <br />
                         <Link to="/">
                             <IonItem button>
-                                <IonIcon icon={mail} slot="start"/>
+                                <IonIcon icon={mail} slot="start" />
                                 <IonLabel slot="start">Inbox</IonLabel>
                             </IonItem>
                         </Link>
-                        <br/>
+                        <br />
                         <Link to="/sent">
                             <IonItem button>
-                                <IonIcon icon={sendSharp} slot="start"/>
+                                <IonIcon icon={sendSharp} slot="start" />
                                 <IonLabel slot="start">Sent</IonLabel>
                             </IonItem>
                         </Link>
                     </IonList>
                 </IonContent>
-			</IonMenu>
+            </IonMenu>
         </>
-	);
+    );
 };
 
 export default Menu;

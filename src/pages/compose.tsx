@@ -8,7 +8,7 @@ import { useEffect, useState } from "react";
 const Compose: React.FC = () => {
     const history = useHistory();
     const { user, loadingUser } = useRootContext();
-    
+
     const [sender, setSender] = useState<String>();
     const [receiver, setReceiver] = useState();
     const [subject, setSubject] = useState();
@@ -17,26 +17,26 @@ const Compose: React.FC = () => {
 
 
     useEffect(() => {
-		if (loadingUser || user) {
+        if (loadingUser || user) {
             if (user?.email) {
                 setSender(user?.email);
             }
             return;
         }
 
-		history.replace('login');
-	}, [user, loadingUser])
-    
+        history.replace('login');
+    }, [user, loadingUser])
+
     const openFileDialog = () => {
         (document as any).getElementById("file-upload").click();
     };
-        
+
     const addFile = (_event: any) => {
         let newFile = _event.target.files![0];
-        setFiles([...files,newFile])
+        setFiles([...files, newFile])
     }
 
-    return ( 
+    return (
         <IonPage>
             <IonHeader>
                 <IonToolbar>
@@ -44,12 +44,12 @@ const Compose: React.FC = () => {
                         <IonBackButton defaultHref="/"></IonBackButton>
                     </IonButtons>
                     <IonButtons slot="primary">
-                        <input type="file" id="file-upload" style={{ display: "none" }} onChange={addFile}/>
+                        <input type="file" id="file-upload" style={{ display: "none" }} onChange={addFile} />
                         <IonButton onClick={openFileDialog}>
-                            <IonIcon icon={documentAttachSharp}/>
+                            <IonIcon icon={documentAttachSharp} />
                         </IonButton>
                         <IonButton>
-                            <IonIcon icon={sendSharp}/>
+                            <IonIcon icon={sendSharp} />
                         </IonButton>
                     </IonButtons>
                     <IonTitle>Compose</IonTitle>
@@ -60,15 +60,15 @@ const Compose: React.FC = () => {
                     <IonInput label="From" value={user?.email} labelPlacement="fixed" readonly={true}></IonInput>
                 </IonItem>
                 <IonItem>
-                    <IonInput label="To" labelPlacement="fixed" onIonChange={(e: any) => {setReceiver(e.target.value)}}></IonInput>
+                    <IonInput label="To" labelPlacement="fixed" onIonChange={(e: any) => { setReceiver(e.target.value) }}></IonInput>
                 </IonItem>
                 <IonItem>
-                    <IonInput placeholder="Subject" onIonChange={(e: any) => {setSubject(e.target.value)}}></IonInput>
+                    <IonInput placeholder="Subject" onIonChange={(e: any) => { setSubject(e.target.value) }}></IonInput>
                 </IonItem>
                 <IonItem>
-                    <IonTextarea placeholder="Compose email" autoGrow={true} onIonChange={(e: any) => {setMessage(e.target.value)}}></IonTextarea>
+                    <IonTextarea placeholder="Compose email" autoGrow={true} onIonChange={(e: any) => { setMessage(e.target.value) }}></IonTextarea>
                 </IonItem>
-                {files.map( file => {
+                {files.map(file => {
                     return (
                         <IonItem key={file.name} lines="full">
                             <IonIcon icon={documentTextSharp} slot="start"></IonIcon>
@@ -78,7 +78,7 @@ const Compose: React.FC = () => {
                 })}
             </IonContent>
         </IonPage>
-     );
+    );
 }
- 
+
 export default Compose;

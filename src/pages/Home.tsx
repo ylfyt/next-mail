@@ -45,7 +45,7 @@ const Home: React.FC = () => {
 			const mailCollection = collection(db, 'mail') as CollectionReference<IMail>;
 			const snap = await getDocs(query(mailCollection, where('receiverId', '==', user.uid)));
 			if (!mounted) return;
-      
+
 			const temp: IMail[] = [];
 			snap.forEach((doc) => {
 				temp.push(doc.data());

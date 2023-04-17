@@ -6,18 +6,18 @@ import { useHistory } from "react-router";
 const ComposeFab: React.FC = () => {
     const history = useHistory();
     const compose = () => {
-		history.push("/compose");
-	};
+        history.push("/compose");
+    };
 
-	return (
-		<>
+    return (
+        <>
             <IonFab slot="fixed" vertical="bottom" horizontal="end">
                 <IonFabButton onClick={compose}>
-                    <IonIcon icon={pencilSharp}/>
+                    <IonIcon icon={pencilSharp} />
                 </IonFabButton>
-			</IonFab>
+            </IonFab>
         </>
-	);
+    );
 };
 
 export default ComposeFab;

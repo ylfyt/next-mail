@@ -14,9 +14,9 @@ import { IMail } from "../interfaces/mail";
 import ComposeFab from "../components/Compose-fab";
 
 const Sent: React.FC = () => {
-    const { state } = useLocation();
+	const { state } = useLocation();
 
-    const [mails, setMails] = useState<IMail[]>([]);
+	const [mails, setMails] = useState<IMail[]>([]);
 	const { user, loadingUser } = useRootContext();
 	const { runCrypto } = useCryptoWorkerContext();
 	const { showToast } = useHelperContext();
@@ -46,7 +46,7 @@ const Sent: React.FC = () => {
 			const mailCollection = collection(db, 'mail') as CollectionReference<IMail>;
 			const snap = await getDocs(query(mailCollection, where('senderInfo.id', '==', user.uid)));
 			if (!mounted) return;
-      
+
 			const temp: IMail[] = [];
 			snap.forEach((doc) => {
 				temp.push(doc.data());
@@ -61,25 +61,25 @@ const Sent: React.FC = () => {
 
 	if (loadingUser || !user) return <div>Loading...</div>;
 
-    return ( 
-        <>
-            <Menu />
-            <IonPage id="menu">
-                <IonHeader>
-                        <IonToolbar>
-                            <IonButtons slot="start">
-                                <IonMenuButton></IonMenuButton>
-                            </IonButtons>
-                            <IonButtons slot="primary">
-                                <IonButton onClick={logout} color="danger">
-                                    <IonIcon icon={exitOutline}></IonIcon>
-                                </IonButton>
-                            </IonButtons>
-                            <IonTitle>Next Email</IonTitle>
-                        </IonToolbar>
-                    </IonHeader>
-                <IonContent className="ion-padding">
-                <div className="h-full flex flex-col items-center text-black mt-4 md:w-1/2 md:mx-auto">
+	return (
+		<>
+			<Menu />
+			<IonPage id="menu">
+				<IonHeader>
+					<IonToolbar>
+						<IonButtons slot="start">
+							<IonMenuButton></IonMenuButton>
+						</IonButtons>
+						<IonButtons slot="primary">
+							<IonButton onClick={logout} color="danger">
+								<IonIcon icon={exitOutline}></IonIcon>
+							</IonButton>
+						</IonButtons>
+						<IonTitle>Next Email</IonTitle>
+					</IonToolbar>
+				</IonHeader>
+				<IonContent className="ion-padding">
+					<div className="h-full flex flex-col items-center text-black mt-4 md:w-1/2 md:mx-auto">
 						<table className="w-full text-sm text-left text-gray-500">
 							<thead className="text-xs text-gray-700 uppercase bg-gray-50">
 								<tr>
@@ -111,11 +111,11 @@ const Sent: React.FC = () => {
 							</tbody>
 						</table>
 					</div>
-                    <ComposeFab />
-                </IonContent>
-            </IonPage>
-        </>
-     );
+					<ComposeFab />
+				</IonContent>
+			</IonPage>
+		</>
+	);
 }
- 
+
 export default Sent;
