@@ -25,6 +25,7 @@ import Register from './pages/register';
 import Login from './pages/login';
 import Compose from "./pages/compose";
 import { useHelperContext } from './contexts/helper';
+import Sent from './pages/sent';
 
 setupIonicReact();
 
@@ -43,6 +44,9 @@ const App: React.FC = () => {
 					</Route>
 					<Route exact path="/">
 						<Home />
+					</Route>
+					<Route exact path="/sent">
+						<Sent />
 					</Route>
 					<Route exact path="/compose">
 						<Compose />

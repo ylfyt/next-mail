@@ -11,8 +11,8 @@ import { useCryptoWorkerContext } from '../contexts/crypto-worker';
 import { useHelperContext } from '../contexts/helper';
 import { IMail } from '../interfaces/mail';
 import { CollectionReference, collection, getDocs, or, query, where } from 'firebase/firestore';
-import {useLocation} from 'react-router-dom'
 import Menu from "../components/menu";
+import ComposeFab from '../components/Compose-fab';
 
 const Home: React.FC = () => {
 	const [mails, setMails] = useState<IMail[]>([]);
@@ -60,15 +60,10 @@ const Home: React.FC = () => {
 
 	if (loadingUser || !user) return <div>Loading...</div>;
 
-	const compose = () => {
-		history.push("/compose");
-	};
-
-
 	return (
 		<>
-			<Menu/>
-			<IonPage id='home'>
+			<Menu />
+			<IonPage id='menu'>
 				<IonHeader>
 					<IonToolbar>
 						<IonButtons slot="start">
@@ -120,11 +115,7 @@ const Home: React.FC = () => {
 							</tbody>
 						</table>
 					</div>
-					<IonFab slot="fixed" vertical="bottom" horizontal="end">
-						<IonFabButton onClick={compose}>
-							<IonIcon icon={pencilSharp}/>
-						</IonFabButton>
-					</IonFab>
+					<ComposeFab />
 				</IonContent>
 			</IonPage>
 		</>

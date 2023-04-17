@@ -1,28 +1,33 @@
 import { IonMenu, IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonButton, IonMenuButton, IonIcon, IonSegmentButton, IonLabel, IonSegment, IonList, IonItem, IonMenuToggle } from "@ionic/react";
 import { mail, sendSharp } from "ionicons/icons";
+import "./menu.css";
+import { Link } from "react-router-dom";
 
-
-const Spinner: React.FC = () => {
+const Menu: React.FC = () => {
 	return (
 		<>
-            <IonMenu contentId="home">
+            <IonMenu contentId="menu">
 				<IonHeader>
 					<IonToolbar color="tertiary">
-						<IonTitle>Menu Content</IonTitle>
+						<IonTitle>Next Email</IonTitle>
 					</IonToolbar>
 				</IonHeader>
 				<IonContent className="ion-padding">
                     <IonList lines="none">
                         <br/>
-                        <IonItem button href="/">
-                            <IonIcon icon={mail} slot="start"/>
-                            <IonLabel slot="start">Inbox</IonLabel>
-                        </IonItem>
+                        <Link to="/">
+                            <IonItem button>
+                                <IonIcon icon={mail} slot="start"/>
+                                <IonLabel slot="start">Inbox</IonLabel>
+                            </IonItem>
+                        </Link>
                         <br/>
-                        <IonItem button href="/">
-                            <IonIcon icon={sendSharp} slot="start"/>
-                            <IonLabel slot="start">Sent</IonLabel>
-                        </IonItem>
+                        <Link to="/sent">
+                            <IonItem button>
+                                <IonIcon icon={sendSharp} slot="start"/>
+                                <IonLabel slot="start">Sent</IonLabel>
+                            </IonItem>
+                        </Link>
                     </IonList>
                 </IonContent>
 			</IonMenu>
@@ -30,4 +35,4 @@ const Spinner: React.FC = () => {
 	);
 };
 
-export default Spinner;
+export default Menu;
