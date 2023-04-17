@@ -1,7 +1,6 @@
 import { IonButton, IonButtons, IonContent, IonFab, IonFabButton, IonHeader, IonIcon, IonMenu, IonMenuButton, IonNavLink, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import { exitOutline, manOutline, pencilSharp } from 'ionicons/icons';
 import './Home.css';
-import Hello from '../components/Hello';
 import { useEffect, useState } from 'react';
 import { useRootContext } from '../contexts/root';
 import { useHistory } from 'react-router';
