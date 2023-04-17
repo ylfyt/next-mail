@@ -1,4 +1,4 @@
-import { IonMenu, IonHeader, IonToolbar, IonTitle, IonContent, IonButtons, IonButton, IonMenuButton, IonIcon, IonSegmentButton, IonLabel, IonSegment, IonList, IonItem, IonMenuToggle } from "@ionic/react";
+import { IonMenu, IonHeader, IonToolbar, IonTitle, IonContent, IonIcon, IonLabel, IonList, IonItem } from "@ionic/react";
 import { mail, sendSharp } from "ionicons/icons";
 import "./menu.css";
 import { Link } from "react-router-dom";
