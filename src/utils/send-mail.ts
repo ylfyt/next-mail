@@ -5,14 +5,14 @@ import { IAttachment } from '../interfaces/attachment';
 import { IMail } from '../interfaces/mail';
 import { uploadFiles } from './upload-file';
 import { User } from 'firebase/auth';
+import { IMessage, ISignedMessage } from '../interfaces/message';
 
-const saveMail = async (attachments: IAttachment[], senderInfo: IUserInfo, receiverId: string, subject: string, body: string): Promise<IMail | null> => {
+const saveMail = async (senderInfo: IUserInfo, receiverId: string, message: string, isEncrypted: boolean): Promise<IMail | null> => {
 	const mail: IMail = {
-		attachments,
-		body: body,
 		receiverId,
 		senderInfo,
-		subject: subject,
+		message,
+		isEncrypted,
 		createdAt: new Date().getTime(),
 	};
 	try {
@@ -26,7 +26,15 @@ const saveMail = async (attachments: IAttachment[], senderInfo: IUserInfo, recei
 	}
 };
 
-export const sendMail = async (user: User, receiverEmail: string, files: File[], subject: string, body: string): Promise<string | IMail> => {
+interface IMailInfo {
+	files: File[];
+	subject: string;
+	body: string;
+	encryptionKey?: string;
+	signatureKey?: string;
+}
+
+export const sendMail = async (user: User, receiverEmail: string, { files, subject, body, encryptionKey, signatureKey }: IMailInfo): Promise<string | IMail> => {
 	try {
 		const receiverRef = doc(db, 'userInfo', receiverEmail) as DocumentReference<IUserInfo>;
 		const receiver = await getDoc(receiverRef);
@@ -41,16 +49,37 @@ export const sendMail = async (user: User, receiverEmail: string, files: File[],
 			return attch;
 		}
 
+		const message = JSON.stringify({
+			subject,
+			body,
+			attachments: attch,
+		} as IMessage);
+
+		const signed: ISignedMessage = {
+			message: message,
+			signature: '',
+		};
+
+		if (signatureKey) {
+			signed.signature = 'dasbdklasmdlsam,ds'; // Sign
+		}
+
+		let encrypted = JSON.stringify(signed);
+		let isEncrypted = false;
+		if (encryptionKey) {
+			isEncrypted = true;
+			encrypted = encrypted;
+		}
+
 		const mail = await saveMail(
-			attch,
 			{
 				email: user!.email!,
 				id: user!.uid,
 				publicKey: '',
 			},
 			receiver.data().id,
-			subject,
-			body
+			encrypted,
+			isEncrypted
 		);
 
 		if (!mail) {

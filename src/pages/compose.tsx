@@ -36,7 +36,12 @@ const Compose: React.FC = () => {
 
     const send = async () => {
       setLoading(true)
-      const res = await sendMail(user!, receiver, files, subject, message)
+      const res = await sendMail(user!, receiver, {
+        files, 
+        subject, 
+        body: message,
+        encryptionKey
+      })
       setLoading(false)
 
       if (typeof res === 'string') {

@@ -12,6 +12,7 @@ import { useHelperContext } from "../contexts/helper";
 import { useRootContext } from "../contexts/root";
 import { IMail } from "../interfaces/mail";
 import ComposeFab from "../components/Compose-fab";
+import { IMessage, ISignedMessage } from "../interfaces/message";
 
 const Sent: React.FC = () => {
 	const { state } = useLocation();
@@ -99,11 +100,25 @@ const Sent: React.FC = () => {
 							</thead>
 							<tbody>
 								{mails.map((mail, idx) => {
+                  let subject = 'Encrypted';
+									let body = 'Encrypted';
+
+									if (!mail.isEncrypted) {
+										const signed = JSON.parse(mail.message) as ISignedMessage;
+										if (signed.signature !== '') {
+											// Checking signature
+										} else {
+											const message = JSON.parse(signed.message) as IMessage;
+											subject = message.subject;
+											body = message.body;
+										}
+									}
+
 									return (
 										<tr key={idx} className={`bg-white border-b ${mail.readAt ? '' : 'text-gray-900 font-bold'}`}>
 											<td className="px-1 py-2">{mail.senderInfo?.email}</td>
-											<td className="px-1 py-4">{mail.subject}</td>
-											<td className="px-1 py-4">{mail.body}</td>
+											<td className="px-1 py-4">{subject}</td>
+											<td className="px-1 py-4">{body}</td>
 											<td className="px-1 py-4">{new Date(mail.createdAt).toLocaleString()}</td>
 										</tr>
 									);

@@ -10,8 +10,9 @@ import { useCryptoWorkerContext } from '../contexts/crypto-worker';
 import { useHelperContext } from '../contexts/helper';
 import { IMail } from '../interfaces/mail';
 import { CollectionReference, collection, getDocs, or, query, where } from 'firebase/firestore';
-import Menu from "../components/menu";
+import Menu from '../components/menu';
 import ComposeFab from '../components/Compose-fab';
+import { IMessage, ISignedMessage } from '../interfaces/message';
 
 const Home: React.FC = () => {
 	const [mails, setMails] = useState<IMail[]>([]);
@@ -62,7 +63,7 @@ const Home: React.FC = () => {
 	return (
 		<>
 			<Menu />
-			<IonPage id='menu'>
+			<IonPage id="menu">
 				<IonHeader>
 					<IonToolbar>
 						<IonButtons slot="start">
@@ -102,11 +103,25 @@ const Home: React.FC = () => {
 							</thead>
 							<tbody>
 								{mails.map((mail, idx) => {
+									let subject = 'Encrypted';
+									let body = 'Encrypted';
+
+									if (!mail.isEncrypted) {
+										const signed = JSON.parse(mail.message) as ISignedMessage;
+										if (signed.signature !== '') {
+											// Checking signature
+										} else {
+											const message = JSON.parse(signed.message) as IMessage;
+											subject = message.subject;
+											body = message.body;
+										}
+									}
+
 									return (
 										<tr key={idx} className={`bg-white border-b ${mail.readAt ? '' : 'text-gray-900 font-bold'}`}>
 											<td className="px-1 py-2">{mail.senderInfo?.email}</td>
-											<td className="px-1 py-4">{mail.subject}</td>
-											<td className="px-1 py-4">{mail.body}</td>
+											<td className="px-1 py-4">{subject}</td>
+											<td className="px-1 py-4">{body}</td>
 											<td className="px-1 py-4">{new Date(mail.createdAt).toLocaleString()}</td>
 										</tr>
 									);
