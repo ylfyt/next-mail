@@ -7,6 +7,7 @@ import { useState } from "react";
 import LoadingButton from "../components/loading-button";
 import { sendMail } from "../utils/send-mail";
 import { useHelperContext } from "../contexts/helper";
+import InputTextWithFile from "../components/input-text-with-file";
 
 const Compose: React.FC = () => {
     const history = useHistory()
@@ -18,6 +19,11 @@ const Compose: React.FC = () => {
     const [subject, setSubject] = useState<string>('');
     const [message, setMessage] = useState<string>('');
     const [files, setFiles] = useState<File[]>([]);
+
+    const [signatureKey, setSignatureKey] = useState('') 
+    const [encryptionKey, setEncryptionKey] = useState('') 
+    const [sign, setSign] = useState(true)
+    const [encrypt, setEncrypt] = useState(true)
 
     const openFileDialog = () => {
         (document as any).getElementById("file-upload").click();
@@ -42,6 +48,8 @@ const Compose: React.FC = () => {
       history.replace('/')
     }
 
+    const disableSend = !message || !receiver || !subject || (sign && !signatureKey) || (encrypt && !encryptionKey)
+
     return (
         <IonPage>
             <IonHeader>
@@ -61,6 +69,9 @@ const Compose: React.FC = () => {
             <IonContent className="ion-padding">
                 <IonItem>
                     <IonInput aria-label="from"  label="From" value={user?.email} labelPlacement="fixed" readonly={true}></IonInput>
+                    <LoadingButton onClick={send} loading={loading} disabled={disableSend} className="text-2xl align-middle disabled:text-gray-400">
+                      <IonIcon icon={sendSharp}/>
+                  </LoadingButton>
                 </IonItem>
                 <IonItem>
                     <IonInput aria-label="to" type="email" label="To" labelPlacement="fixed" placeholder="Receiver" onIonChange={(e: any) => { setReceiver(e.target.value) }}></IonInput>
@@ -80,10 +91,29 @@ const Compose: React.FC = () => {
                     )
                 })}
 
-                <div className="flex justify-end mt-10 mr-6">
-                  <LoadingButton onClick={send} loading={loading} disabled={!message || !receiver || !subject} className="text-2xl align-middle">
-                      <IonIcon className="" icon={sendSharp}/>
-                  </LoadingButton>
+                <div className="flex flex-col mx-4 mt-6 gap-2">
+                  <div className="flex gap-6">
+                    <div className="flex items-center gap-2">
+                      <input checked={sign} onChange={(e) => {
+                        setSign(e.target.checked)
+                      }} type="checkbox" />
+                      <label>Sign</label>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <input checked={encrypt} onChange={(e) => {
+                        setEncrypt(e.target.checked)
+                      }} type="checkbox" />
+                      <label>Encrypt</label>
+                    </div>
+                  </div>
+                  <div className="mt-2 flex flex-col gap-2">
+                    {
+                      sign && <InputTextWithFile placeholder="Signature Key" value={signatureKey} setValue={setSignatureKey} />
+                    }
+                    {
+                      encrypt && <InputTextWithFile placeholder="Encryption Key" value={encryptionKey} setValue={setEncryptionKey} />
+                    }
+                  </div>
                 </div>
             </IonContent>
         </IonPage>
