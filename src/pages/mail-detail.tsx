@@ -67,9 +67,15 @@ const MailDetail: FC<MailDetailProps> = () => {
 			if (msg.signature !== '') {
 				// TODO Checking signature
 				// get public key
-				const publicKeyDecoded = data.senderInfo.publicKey;
+				const publicKeyEncoded: string = data.senderInfo.publicKey;
 				// decode public key
-				const publicKey = decodePublicKey(publicKeyDecoded);
+				const publicKey = decodePublicKey(publicKeyEncoded);
+				
+				if (publicKey[0] === 0n || publicKey[1] === 0n){
+					setErrorMessage("Signature Violation");	
+					return;
+				}
+
 				// get message
 				const messageSanitize = data.message.split('<******>');
 				messageSanitize.pop();
@@ -104,9 +110,15 @@ const MailDetail: FC<MailDetailProps> = () => {
 		if (msg.signature !== '') {
 			// TODO Checking signature
 			// get public key
-			const publicKeyDecoded = mail.senderInfo.publicKey;
+			const publicKeyEncoded = mail.senderInfo.publicKey;
 			// decode public key
-			const publicKey = decodePublicKey(publicKeyDecoded);
+			const publicKey = decodePublicKey(publicKeyEncoded);
+
+			if (publicKey[0] === 0n || publicKey[1] === 0n){
+				setErrorMessage("Signature Violation");	
+				return;
+			}
+
 			// get message
 			const messageSanitize = mail.message.split('<******>');
 			messageSanitize.pop();

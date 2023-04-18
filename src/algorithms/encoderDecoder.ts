@@ -33,12 +33,15 @@ export function encodePublicKey(publicKey: [bigint, bigint]): string {
 }
 
 export function decodePublicKey(publicKeyEncoded: string): [bigint, bigint] {
-  const rHex = publicKeyEncoded.substring(0, 64);
-  const sHex = publicKeyEncoded.substring(64);
-  const x = BigInt('0x' + rHex);
-  const y = BigInt('0x' + sHex);
-  
-  return [x, y];
+  try {
+    const rHex = publicKeyEncoded.substring(0, 64);
+    const sHex = publicKeyEncoded.substring(64);
+    const x = BigInt('0x' + rHex);
+    const y = BigInt('0x' + sHex);
+    return [x, y];
+  } catch (error) {
+    return [0n,0n];
+  }
 }
 
 // ================= Private Key Encoding Decoding =================
@@ -49,9 +52,15 @@ export function encodePrivateKey(privateKey: bigint): string {
 }
 
 export function decodePrivateKey(privateKeyEncoded: string): bigint {
-  const privateKeyHex = privateKeyEncoded.substring(0, 64);
-  const privateKeyDecoded = BigInt('0x' + privateKeyHex);
-  return privateKeyDecoded;
+  try {
+    const privateKeyHex = privateKeyEncoded.substring(0, 64);
+    const privateKeyDecoded = BigInt('0x' + privateKeyHex);
+    return privateKeyDecoded;
+  } catch (error) {
+    return 0n;
+  }
+
+  
 }
 
 

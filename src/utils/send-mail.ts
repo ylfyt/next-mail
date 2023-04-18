@@ -40,6 +40,15 @@ interface IMailInfo {
 
 export const sendMail = async (user: User, receiverEmail: string, { files, subject, body, encryptionKey, signatureKey }: IMailInfo): Promise<string | IMail> => {
 	try {
+		
+		if (signatureKey){
+			const privateKey = decodePrivateKey(signatureKey);
+			
+			if (privateKey === 0n){
+				return "Signature Key is not valid";
+			}
+		}
+
 		const receiverRef = doc(db, 'userInfo', receiverEmail) as DocumentReference<IUserInfo>;
 		const receiver = await getDoc(receiverRef);
 
@@ -69,7 +78,7 @@ export const sendMail = async (user: User, receiverEmail: string, { files, subje
 		let publicKeyEncoded = "";
 		if (signatureKey) {
 			// decode private key to bigint
-			console.log("privatekey:",signatureKey);
+			// console.log("privatekey:",signatureKey);
 			const privateKey = decodePrivateKey(signatureKey);
 			// generate public key (bigint) from private key
 			const publicKey = generatePublicKey(privateKey);
