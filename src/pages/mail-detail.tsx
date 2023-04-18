@@ -170,7 +170,7 @@ const MailDetail: FC<MailDetailProps> = () => {
 			<IonHeader>
 				<IonToolbar>
 					<IonButtons slot="start">
-						<IonBackButton></IonBackButton>
+						<IonBackButton defaultHref='/inbox'></IonBackButton>
 					</IonButtons>
           <IonTitle>{signed?.message.subject}</IonTitle>
 				</IonToolbar>
