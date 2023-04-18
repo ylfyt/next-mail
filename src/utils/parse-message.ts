@@ -16,8 +16,23 @@ export const parseMessage = (message: string): ISignedMessage | null => {
 		attachments: [],
 	};
 
-	if (data.length > 2) {
-		const attachmentData = data[2].split('<***>');
+	let attachmentMessage = '';
+	let signature = '';
+
+	if (data.length === 3) {
+		let str = data[2];
+		if (str.startsWith('<#ds>')) {
+			signature = str.replace('<#ds>', '');
+		} else {
+			attachmentMessage = str;
+		}
+	} else {
+		attachmentMessage = data[2];
+		signature = data[3];
+	}
+
+	if (attachmentMessage !== '') {
+		const attachmentData = attachmentMessage.split('<***>');
 		const attachments: IAttachment[] = [];
 		for (const data of attachmentData) {
 			const attach = data.split('<>');
@@ -32,12 +47,8 @@ export const parseMessage = (message: string): ISignedMessage | null => {
 
 	const signed: ISignedMessage = {
 		message: msg,
-		signature: '',
+		signature,
 	};
-
-	if (data.length > 3) {
-		signed.signature = data[3];
-	}
 
 	return signed;
 };

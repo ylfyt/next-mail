@@ -80,8 +80,11 @@ export const sendMail = async (user: User, receiverEmail: string, { files, subje
 			// attach
 			// signed.signature = signatureEncoded; // Sign
 
-			// const signature = 'dasbdklasmdlsam,ds'; // Sign
-			message += `<******>${signatureEncoded}`;
+      if (files.length !== 0) {
+        message += `<******>${signatureEncoded}`;
+      } else {
+        message += `<******><#ds>${signatureEncoded}`;
+      }
 		}
 
 		let isEncrypted = false;
