@@ -1,4 +1,4 @@
-import { IonBackButton, IonButtons, IonContent, IonHeader, IonIcon, IonPage, IonToolbar } from '@ionic/react';
+import { IonBackButton, IonButtons, IonContent, IonHeader, IonIcon, IonPage, IonTitle, IonToolbar } from '@ionic/react';
 import { FC, useEffect, useState } from 'react';
 import { useHistory, useParams } from 'react-router';
 import { IMail } from '../interfaces/mail';
@@ -172,6 +172,7 @@ const MailDetail: FC<MailDetailProps> = () => {
 					<IonButtons slot="start">
 						<IonBackButton></IonBackButton>
 					</IonButtons>
+          <IonTitle>{signed?.message.subject}</IonTitle>
 				</IonToolbar>
 			</IonHeader>
 			<IonContent>
@@ -186,7 +187,7 @@ const MailDetail: FC<MailDetailProps> = () => {
 					) : mail.isEncrypted && !signed ? (
 						<div className="flex w-full flex-col items-center justify-center">
 							<span className="text-3xl font-semibold mb-6">This mail is Encrypted</span>
-							<InputTextWithFile placeholder="16 Digit Encryption Key" value={encryptionKey} setValue={setEncryptionKey} />
+							<InputTextWithFile placeholder="16 Digit Encryption Key" className='w-full px-6' value={encryptionKey} setValue={setEncryptionKey} />
 							<LoadingButton disabled={encryptionKey.length !== 16 || !mail} onClick={decrypt} className="w-[100px] bg-blue-500 h-[40px] rounded-lg text-white shadow mt-2">
 								Open
 							</LoadingButton>

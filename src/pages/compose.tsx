@@ -63,16 +63,11 @@ const Compose: React.FC = () => {
                     <IonButtons slot="start">
                         <IonBackButton defaultHref="/"></IonBackButton>
                     </IonButtons>
-                    <IonButtons slot="primary">
-                        <input type="file" id="file-upload" style={{ display: "none" }} onChange={addFile} />
-                        <IonButton onClick={openFileDialog}>
-                            <IonIcon icon={documentAttachSharp} />
-                        </IonButton>
-                    </IonButtons>
                     <IonTitle>Compose</IonTitle>
                 </IonToolbar>
             </IonHeader>
             <IonContent>
+              <div className="md:w-1/2 md:mx-auto pt-4">
                 <IonItem>
                     <IonInput aria-label="from"  label="From" value={user?.email} labelPlacement="fixed" readonly={true}></IonInput>
                     <LoadingButton onClick={send} loading={loading} disabled={disableSend} className="text-2xl align-middle disabled:text-gray-400">
@@ -84,15 +79,24 @@ const Compose: React.FC = () => {
                 </IonItem>
                 <IonItem>
                     <IonInput aria-label="subject" placeholder="Subject" onInput={(e: any) => { setSubject(e.target.value) }}></IonInput>
+                    <div className="">
+                        <input type="file" id="file-upload" style={{ display: "none" }} onChange={addFile} />
+                        <button title="Attachment" className="text-2xl" onClick={openFileDialog}>
+                            <IonIcon className="text-gray-600" icon={documentAttachSharp} />
+                        </button>
+                    </div>
                 </IonItem>
                 <IonItem>
                     <IonTextarea aria-label="body" placeholder="Compose email" autoGrow={true} onInput={(e: any) => { setMessage(e.target.value) }}></IonTextarea>
                 </IonItem>
-                {files.map(file => {
+                {files.map((file, idx) => {
                     return (
-                        <IonItem key={file.name} lines="full">
+                        <IonItem key={idx} lines="full">
                             <IonIcon icon={documentTextSharp} slot="start"></IonIcon>
                             <IonLabel>{file.name}</IonLabel>
+                            <button onClick={() => {
+                              setFiles(files.filter((_, i) => idx !== i))
+                            }}>&#10005;</button>
                         </IonItem>
                     )
                 })}
@@ -115,14 +119,15 @@ const Compose: React.FC = () => {
                     </div>
                     <div className="mt-2 flex px-1 flex-col gap-2">
                       {
-                        sign && <InputTextWithFile placeholder="Signature Key" className="w-full md:w-1/2 mb-1" value={signatureKey} setValue={setSignatureKey} />
+                        sign && <InputTextWithFile placeholder="Signature Key" className="w-full md:w-3/4 mb-1" value={signatureKey} setValue={setSignatureKey} />
                       }
                       {
-                        encrypt && <InputTextWithFile placeholder="16 Digit Encryption Key" className="w-full md:w-1/2" value={encryptionKey} setValue={setEncryptionKey} />
+                        encrypt && <InputTextWithFile placeholder="16 Digit Encryption Key" className="w-full md:w-3/4" value={encryptionKey} setValue={setEncryptionKey} />
                       }
                     </div>
                   </div>
                 </IonItem>
+              </div>
             </IonContent>
         </IonPage>
     );
