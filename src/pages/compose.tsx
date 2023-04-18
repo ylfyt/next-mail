@@ -51,7 +51,7 @@ const Compose: React.FC = () => {
       }
       
       showToast('Success')
-      history.replace('/')
+      history.goBack()
     }
 
     const disableSend = !message || !receiver || !subject || (sign && !signatureKey) || (encrypt && encryptionKey.length !== 16)
@@ -80,13 +80,13 @@ const Compose: React.FC = () => {
                   </LoadingButton>
                 </IonItem>
                 <IonItem>
-                    <IonInput aria-label="to" type="email" label="To" labelPlacement="fixed" placeholder="Receiver" onIonChange={(e: any) => { setReceiver(e.target.value) }}></IonInput>
+                    <IonInput aria-label="to" type="email" label="To" labelPlacement="fixed" placeholder="Receiver" onInput={(e: any) => { setReceiver(e.target.value) }}></IonInput>
                 </IonItem>
                 <IonItem>
-                    <IonInput aria-label="subject" placeholder="Subject" onIonChange={(e: any) => { setSubject(e.target.value) }}></IonInput>
+                    <IonInput aria-label="subject" placeholder="Subject" onInput={(e: any) => { setSubject(e.target.value) }}></IonInput>
                 </IonItem>
                 <IonItem>
-                    <IonTextarea aria-label="body" placeholder="Compose email" autoGrow={true} onIonChange={(e: any) => { setMessage(e.target.value) }}></IonTextarea>
+                    <IonTextarea aria-label="body" placeholder="Compose email" autoGrow={true} onInput={(e: any) => { setMessage(e.target.value) }}></IonTextarea>
                 </IonItem>
                 {files.map(file => {
                     return (
@@ -98,7 +98,7 @@ const Compose: React.FC = () => {
                 })}
 
                 <IonItem>
-                  <div className="flex flex-col w-full mt-6 gap-2">
+                  <div className="flex flex-col w-full mt-6 gap-2 mb-2">
                     <div className="flex">
                       <div className="flex items-center mr-6">
                         <input className="mr-1" checked={sign} onChange={(e) => {
@@ -113,7 +113,7 @@ const Compose: React.FC = () => {
                         <label>Encrypt</label>
                       </div>
                     </div>
-                    <div className="mt-2 flex flex-col gap-2">
+                    <div className="mt-2 flex px-1 flex-col gap-2">
                       {
                         sign && <InputTextWithFile placeholder="Signature Key" className="w-full md:w-1/2 mb-1" value={signatureKey} setValue={setSignatureKey} />
                       }

@@ -7,7 +7,7 @@ import { useHistory } from 'react-router';
 import { signOut } from 'firebase/auth';
 import { auth, db } from '../utils/firebase';
 import { IMail } from '../interfaces/mail';
-import { CollectionReference, collection, getDocs, query, where } from 'firebase/firestore';
+import { CollectionReference, Unsubscribe, collection, getDocs, onSnapshot, orderBy, query, where } from 'firebase/firestore';
 import Menu from '../components/menu';
 import ComposeFab from '../components/Compose-fab';
 import { ISignedMessage } from '../interfaces/message';
@@ -38,23 +38,27 @@ const Home: React.FC = () => {
 	useEffect(() => {
 		if (!user) return;
 		let mounted = true;
+		let unsub: Unsubscribe | null;
 
 		(async () => {
 			const mailCollection = collection(db, 'mail') as CollectionReference<IMail>;
-			const snap = await getDocs(query(mailCollection, where('receiverId', '==', user.uid)));
-			if (!mounted) return;
+			const mailQuery = query(mailCollection, where('receiverId', '==', user.uid), orderBy('createdAt', 'desc'));
+			unsub = onSnapshot(mailQuery, (snap) => {
+				if (!mounted) return;
 
-			const temp: IMail[] = [];
-			snap.forEach((doc) => {
-				temp.push({
-					id: doc.id,
-					...doc.data(),
+				const temp: IMail[] = [];
+				snap.forEach((doc) => {
+					temp.push({
+						id: doc.id,
+						...doc.data(),
+					});
 				});
+				setMails(temp);
 			});
-			setMails(temp);
 		})();
 
 		return () => {
+			unsub && unsub();
 			mounted = false;
 		};
 	}, [user]);
@@ -79,11 +83,6 @@ const Home: React.FC = () => {
 					</IonToolbar>
 				</IonHeader>
 				<IonContent fullscreen>
-					<IonHeader collapse="condense">
-						<IonToolbar>
-							<IonTitle size="large">The Next Gen Email</IonTitle>
-						</IonToolbar>
-					</IonHeader>
 					<div className="flex flex-col items-center text-black mt-4 md:w-1/2 md:mx-auto">
 						<div className="w-full text-sm text-left text-gray-500 px-2">
 							{mails.map((mail, idx) => {

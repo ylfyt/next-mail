@@ -26,7 +26,7 @@ export const parseMessage = (message: string): ISignedMessage | null => {
 		} else {
 			attachmentMessage = str;
 		}
-	} else {
+	} else if (data.length === 4) {
 		attachmentMessage = data[2];
 		signature = data[3];
 	}

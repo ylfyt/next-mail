@@ -8,6 +8,7 @@ import LoadingButton from '../components/loading-button';
 import { useHelperContext } from '../contexts/helper';
 import { IUserInfo } from '../interfaces/user-info';
 import { doc, setDoc } from 'firebase/firestore';
+import { useRootContext } from '../contexts/root';
 
 interface RegisterProps {}
 
@@ -16,13 +17,16 @@ const Register: FC<RegisterProps> = () => {
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
 
+	const { user, loadingUser } = useRootContext();
 	const { showToast } = useHelperContext();
 
 	const history = useHistory();
 
 	useEffect(() => {
-		setLoading(false);
-	}, []);
+		if (!loadingUser && user) {
+			history.replace('inbox');
+		}
+	}, [loadingUser, user]);
 
 	const register = async () => {
 		try {

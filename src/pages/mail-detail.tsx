@@ -3,16 +3,17 @@ import { FC, useEffect, useState } from 'react';
 import { useHistory, useParams } from 'react-router';
 import { IMail } from '../interfaces/mail';
 import { DocumentReference, doc, getDoc, setDoc } from 'firebase/firestore';
-import { db } from '../utils/firebase';
+import { db, storage } from '../utils/firebase';
 import { ISignedMessage } from '../interfaces/message';
 import InputTextWithFile from '../components/input-text-with-file';
 import LoadingButton from '../components/loading-button';
 import { suffleDecrypt } from '../algorithms/shuffle-aes';
 import { parseMessage } from '../utils/parse-message';
-import { documentAttachSharp } from 'ionicons/icons';
+import { documentAttachSharp, keySharp } from 'ionicons/icons';
 import { useRootContext } from '../contexts/root';
 import { decodePublicKey, decodeSignature } from '../algorithms/encoderDecoder';
 import { verify } from '../algorithms/ecdsa';
+import { getDownloadURL, ref } from '@firebase/storage';
 
 interface MailDetailProps {}
 
@@ -27,6 +28,7 @@ const MailDetail: FC<MailDetailProps> = () => {
 	const [encryptionKey, setEncryptionKey] = useState('');
 
 	const [errorMessage, setErrorMessage] = useState('');
+	const [attachmentUrls, setAttachmentUrls] = useState<string[]>([]);
 
 	useEffect(() => {
 		(async () => {
@@ -95,6 +97,24 @@ const MailDetail: FC<MailDetailProps> = () => {
 		})();
 	}, []);
 
+	useEffect(() => {
+		if (!mail || !signed || signed.message.attachments.length === 0) return;
+
+		(async () => {
+			try {
+				const temp: string[] = [];
+				for (const attach of signed.message.attachments) {
+					const path = `attachments/${mail.senderInfo.id}:${mail.receiverId}/${attach.fileName}.${attach.ext}`;
+					const url = await getDownloadURL(ref(storage, path));
+					temp.push(url);
+				}
+				setAttachmentUrls(temp);
+			} catch (error) {
+				console.log(error);
+			}
+		})();
+	}, [signed]);
+
 	const decrypt = () => {
 		if (!mail) return;
 
@@ -127,7 +147,7 @@ const MailDetail: FC<MailDetailProps> = () => {
 			}
 
 			// get message
-			const messageSanitize = mail.message.split('<******>');
+			const messageSanitize = decrypted.split('<******>');
 			messageSanitize.pop();
 			const rawMessage = messageSanitize.join('<******>');
 			// get signature
@@ -155,7 +175,7 @@ const MailDetail: FC<MailDetailProps> = () => {
 				</IonToolbar>
 			</IonHeader>
 			<IonContent>
-				<div className="flex justify-center min-h-[80vh]">
+				<div className="flex justify-center min-h-[80vh] md:w-1/2 md:mx-auto pb-10">
 					{loading || !mail ? (
 						<div
 							className="w-12 h-12 rounded-full animate-spin
@@ -173,24 +193,28 @@ const MailDetail: FC<MailDetailProps> = () => {
 						</div>
 					) : (
 						<div className="w-full px-2 flex flex-col">
-							<span className="text-lg font-medium mt-2">{signed?.message.subject}</span>
-							<div className="text-xs mb-4">
+							<div className="text-lg font-medium mt-2 flex items-center">
+								{signed?.signature !== '' && <IonIcon title="Signature is valid" icon={keySharp} className="text-green-500 mr-2 text-base" />}
+								<span className="">{signed?.message.subject}</span>
+							</div>
+							<div className="text-xs mb-2">
 								<div>{mail.senderInfo.email}</div>
 								<div className="text-gray-600">{new Date(mail.createdAt).toLocaleString()}</div>
 							</div>
-							<div className="text-sm mb-4 p-1 border-gray-200 border rounded min-h-[100px]">{signed?.message.body}</div>
-							<div className="text-xs flex flex-col">
-								{signed?.message.attachments.map((attach, idx) => {
+							<div className="text-xs flex flex-col mb-4">
+								{attachmentUrls.map((url, idx) => {
+									const attach = signed?.message.attachments[idx];
 									return (
-										<div key={idx} className="flex items-center mb-2 bg-gray-200 p-2 rounded-md">
+										<a target="_blank" href={url} key={idx} className="flex items-center mb-2 bg-gray-200 p-2 rounded-md">
 											<IonIcon icon={documentAttachSharp} className="text-gray-600 mr-1" />
 											<span>
-												{attach.originalFileName}.{attach.ext}
+												{attach?.originalFileName}.{attach?.ext}
 											</span>
-										</div>
+										</a>
 									);
 								})}
 							</div>
+							<div className="text-sm mb-4 p-1 border-gray-200 border rounded min-h-[100px]">{signed?.message.body}</div>
 						</div>
 					)}
 				</div>
