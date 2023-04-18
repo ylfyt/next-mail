@@ -8,7 +8,8 @@ import { suffleEncrypt } from '../algorithms/shuffle-aes';
 import { generatePublicKey, signing } from '../algorithms/ecdsa';
 import { 
 	encodeSignature,
-	decodePrivateKey } from '../algorithms/encoderDecoder';
+	decodePrivateKey, 
+	encodePublicKey} from '../algorithms/encoderDecoder';
 
 const saveMail = async (senderInfo: IUserInfo, receiverId: string, message: string, isEncrypted: boolean): Promise<IMail | null> => {
 	const mail: IMail = {
@@ -65,13 +66,15 @@ export const sendMail = async (user: User, receiverEmail: string, { files, subje
 			}
 			message += `<******>${attachments}`;
 		}
-
+		let publicKeyEncoded = "";
 		if (signatureKey) {
 			// decode private key to bigint
 			console.log("privatekey:",signatureKey);
 			const privateKey = decodePrivateKey(signatureKey);
 			// generate public key (bigint) from private key
 			const publicKey = generatePublicKey(privateKey);
+			// encode public key (string)
+			publicKeyEncoded = encodePublicKey(publicKey);
 			// generate signature
 			const signature = signing(message, publicKey, privateKey);
 			// encode signature
@@ -94,7 +97,7 @@ export const sendMail = async (user: User, receiverEmail: string, { files, subje
 			{
 				email: user!.email!,
 				id: user!.uid,
-				publicKey: '',
+				publicKey: publicKeyEncoded,
 			},
 			receiver.data().id,
 			message,

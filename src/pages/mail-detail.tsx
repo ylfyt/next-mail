@@ -11,6 +11,8 @@ import { suffleDecrypt } from '../algorithms/shuffle-aes';
 import { parseMessage } from '../utils/parse-message';
 import { attachSharp, documentAttachSharp } from 'ionicons/icons';
 import { useRootContext } from '../contexts/root';
+import { decodePublicKey, decodeSignature } from '../algorithms/encoderDecoder';
+import { verify } from '../algorithms/ecdsa';
 
 interface MailDetailProps {}
 
@@ -64,6 +66,24 @@ const MailDetail: FC<MailDetailProps> = () => {
 
 			if (msg.signature !== '') {
 				// TODO Checking signature
+				// get public key
+				const publicKeyDecoded = data.senderInfo.publicKey;
+				// decode public key
+				const publicKey = decodePublicKey(publicKeyDecoded);
+				// get message
+				const messageSanitize = data.message.split('<******>');
+				messageSanitize.pop();
+				const rawMessage = messageSanitize.join('<******>');
+				// get signature
+				const signature = msg.signature;
+				// decode signature
+				const [r,s] = decodeSignature(signature);
+				// verify
+				const valid = verify(rawMessage, r, s, publicKey);
+				if (!valid){
+					setErrorMessage("Signature Violation");
+					return;
+				}
 			}
 
 			setSigned(msg);
@@ -83,6 +103,25 @@ const MailDetail: FC<MailDetailProps> = () => {
 
 		if (msg.signature !== '') {
 			// TODO Checking signature
+			// get public key
+			const publicKeyDecoded = mail.senderInfo.publicKey;
+			// decode public key
+			const publicKey = decodePublicKey(publicKeyDecoded);
+			// get message
+			const messageSanitize = mail.message.split('<******>');
+			messageSanitize.pop();
+			const rawMessage = messageSanitize.join('<******>');
+			// get signature
+			const signature = msg.signature;
+			// decode signature
+			const [r,s] = decodeSignature(signature);
+			// verify
+			const valid = verify(rawMessage, r,s, publicKey);
+			if (!valid){
+				setErrorMessage("Signature Violation");
+				return;
+			}
+
 		}
 
 		if (!mail.readAt && mail.receiverId === user?.uid) {

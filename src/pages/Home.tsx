@@ -14,6 +14,11 @@ import { IMessage, ISignedMessage } from '../interfaces/message';
 import { suffleDecrypt } from '../algorithms/shuffle-aes';
 import { Link } from 'react-router-dom';
 import { parseMessage } from '../utils/parse-message';
+import { verify, generatePublicKey } from '../algorithms/ecdsa';
+import { 
+	decodeSignature,
+	decodePublicKey } from '../algorithms/encoderDecoder';
+
 
 const Home: React.FC = () => {
 	const [mails, setMails] = useState<IMail[]>([]);
@@ -93,9 +98,13 @@ const Home: React.FC = () => {
 
 								if (!mail.isEncrypted) {
 									const signed = parseMessage(mail.message);
+									console.log(signed);
 									if (signed) {
 										if (signed.signature !== '') {
 											// TODO: Checking signature
+											
+
+
 										} else {
 											subject = signed.message.subject;
 											body = signed.message.body;
