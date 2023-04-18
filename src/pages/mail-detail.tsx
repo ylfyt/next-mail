@@ -61,6 +61,11 @@ const MailDetail: FC<MailDetailProps> = () => {
 				setErrorMessage('Message Data is Not Valid');
 				return;
 			}
+
+			if (msg.signature !== '') {
+				// TODO Checking signature
+			}
+
 			setSigned(msg);
 		})();
 	}, []);
@@ -74,6 +79,10 @@ const MailDetail: FC<MailDetailProps> = () => {
 		if (!msg) {
 			setErrorMessage('Decryption Key is Not Valid');
 			return;
+		}
+
+		if (msg.signature !== '') {
+			// TODO Checking signature
 		}
 
 		if (!mail.readAt && mail.receiverId === user?.uid) {

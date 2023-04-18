@@ -1,5 +1,5 @@
 import { IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonMenuButton, IonPage, IonTitle, IonToolbar } from '@ionic/react';
-import { exitOutline } from 'ionicons/icons';
+import { exitOutline, lockClosed } from 'ionicons/icons';
 import './Home.css';
 import { useEffect, useState } from 'react';
 import { useRootContext } from '../contexts/root';
@@ -86,53 +86,45 @@ const Home: React.FC = () => {
 						</IonToolbar>
 					</IonHeader>
 					<div className="h-full flex flex-col items-center text-black mt-4 md:w-1/2 md:mx-auto">
-						<div className="w-full text-sm text-left text-gray-500">
-							<div className="text-xs text-gray-700 uppercase bg-gray-50 flex">
-								
-									<div className="px-6 py-3">
-										Sender
-									</div>
-									<div className="px-6 py-3">
-										Subject
-									</div>
-									<div className="px-6 py-3">
-										Body
-									</div>
-									<div className="px-6 py-3">
-										Sent date
-									</div>
-								
-							</div>
-							<div>
-								{mails.map((mail, idx) => {
-									let subject = 'Encrypted';
-									let body = 'Encrypted';
+						<div className="w-full text-sm text-left text-gray-500 px-2">
+							{mails.map((mail, idx) => {
+								let subject = 'Encrypted';
+								let body = 'Encrypted';
 
-									if (!mail.isEncrypted) {
-                    const signed = parseMessage(mail.message)
-										if (signed?.signature !== '') {
-											// Checking signature
+								if (!mail.isEncrypted) {
+									const signed = parseMessage(mail.message);
+									if (signed) {
+										if (signed.signature !== '') {
+											// TODO: Checking signature
 										} else {
-											// const message = JSON.parse(signed.message) as IMessage;
-											// subject = message.subject;
-											// body = message.body;
+											subject = signed.message.subject;
+											body = signed.message.body;
 										}
-									} else {
-										// TODO: DELETE THIS
-										const msg = suffleDecrypt(mail.message, '1234567890abcdef');
-										console.log(msg);
 									}
+								}
 
-									return (
-										<Link key={idx} to={`/inbox/${mail.id}`} className={`bg-white border-b flex items-center ${mail.readAt ? '' : 'text-gray-900 font-bold'}`}>
-											<div className="px-1 py-2">{mail.senderInfo?.email}</div>
-											<div className="px-1 py-4">{subject}</div>
-											<div className="px-1 py-4">{body}</div>
-											<div className="px-1 py-4">{new Date(mail.createdAt).toLocaleString()}</div>
-										</Link>
-									);
-								})}
-							</div>
+								return (
+									<Link key={idx} to={`/inbox/${mail.id}`} className="flex flex-col border-2 border-gray-500 p-1 rounded mb-2 hover:border-blue-500 relative">
+										<div className="flex justify-between mb-2 text-xs">
+											<div>{mail.senderInfo.email}</div>
+											<div>{new Date(mail.createdAt).toLocaleString()}</div>
+										</div>
+
+										{mail.isEncrypted ? (
+											<div className="flex text-red-600 md:items-center">
+												<IonIcon icon={lockClosed} />
+												<span>Encrypted</span>
+											</div>
+										) : (
+											<div>
+												<div className="font-bold md:font-semibold line-clamp-1 text-sm">{subject}</div>
+												<div className="text-xs line-clamp-2">{body}</div>
+											</div>
+										)}
+										{!mail.readAt && <div className="w-[10px] h-[10px] translate-x-1/2 -translate-y-1/2 bg-red-500 absolute top-0 right-0 rounded-full"></div>}
+									</Link>
+								);
+							})}
 						</div>
 					</div>
 					<ComposeFab />
