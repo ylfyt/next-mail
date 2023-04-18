@@ -65,14 +65,13 @@ const MailDetail: FC<MailDetailProps> = () => {
 			}
 
 			if (msg.signature !== '') {
-				// TODO Checking signature
 				// get public key
 				const publicKeyEncoded: string = data.senderInfo.publicKey;
 				// decode public key
 				const publicKey = decodePublicKey(publicKeyEncoded);
-				
-				if (publicKey[0] === 0n || publicKey[1] === 0n){
-					setErrorMessage("Signature Violation");	
+
+				if (publicKey[0] === 0n || publicKey[1] === 0n) {
+					setErrorMessage('Signature Violation');
 					return;
 				}
 
@@ -83,11 +82,11 @@ const MailDetail: FC<MailDetailProps> = () => {
 				// get signature
 				const signature = msg.signature;
 				// decode signature
-				const [r,s] = decodeSignature(signature);
+				const [r, s] = decodeSignature(signature);
 				// verify
 				const valid = verify(rawMessage, r, s, publicKey);
-				if (!valid){
-					setErrorMessage("Signature Violation");
+				if (!valid) {
+					setErrorMessage('Signature Violation');
 					return;
 				}
 			}
@@ -107,15 +106,23 @@ const MailDetail: FC<MailDetailProps> = () => {
 			return;
 		}
 
+		if (!mail.readAt && mail.receiverId === user?.uid) {
+			setDoc(doc(db, 'mail', id), {
+				...mail,
+				readAt: new Date().getTime(),
+			}).catch((err) => {
+				console.log(err);
+			});
+		}
+
 		if (msg.signature !== '') {
-			// TODO Checking signature
 			// get public key
 			const publicKeyEncoded = mail.senderInfo.publicKey;
 			// decode public key
 			const publicKey = decodePublicKey(publicKeyEncoded);
 
-			if (publicKey[0] === 0n || publicKey[1] === 0n){
-				setErrorMessage("Signature Violation");	
+			if (publicKey[0] === 0n || publicKey[1] === 0n) {
+				setErrorMessage('Signature Violation');
 				return;
 			}
 
@@ -126,24 +133,15 @@ const MailDetail: FC<MailDetailProps> = () => {
 			// get signature
 			const signature = msg.signature;
 			// decode signature
-			const [r,s] = decodeSignature(signature);
+			const [r, s] = decodeSignature(signature);
 			// verify
-			const valid = verify(rawMessage, r,s, publicKey);
-			if (!valid){
-				setErrorMessage("Signature Violation");
+			const valid = verify(rawMessage, r, s, publicKey);
+			if (!valid) {
+				setErrorMessage('Signature Violation');
 				return;
 			}
-
 		}
 
-		if (!mail.readAt && mail.receiverId === user?.uid) {
-			setDoc(doc(db, 'mail', id), {
-				...mail,
-				readAt: new Date().getTime(),
-			}).catch((err) => {
-				console.log(err);
-			});
-		}
 		setSigned(msg);
 	};
 

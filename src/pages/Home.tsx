@@ -1,5 +1,5 @@
 import { IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonMenuButton, IonPage, IonTitle, IonToolbar } from '@ionic/react';
-import { exitOutline, lockClosed } from 'ionicons/icons';
+import { banSharp, exitOutline, lockClosed } from 'ionicons/icons';
 import './Home.css';
 import { useEffect, useState } from 'react';
 import { useRootContext } from '../contexts/root';
@@ -15,10 +15,7 @@ import { suffleDecrypt } from '../algorithms/shuffle-aes';
 import { Link } from 'react-router-dom';
 import { parseMessage } from '../utils/parse-message';
 import { verify, generatePublicKey } from '../algorithms/ecdsa';
-import { 
-	decodeSignature,
-	decodePublicKey } from '../algorithms/encoderDecoder';
-
+import { decodeSignature, decodePublicKey } from '../algorithms/encoderDecoder';
 
 const Home: React.FC = () => {
 	const [mails, setMails] = useState<IMail[]>([]);
@@ -95,19 +92,29 @@ const Home: React.FC = () => {
 							{mails.map((mail, idx) => {
 								let subject = 'Encrypted';
 								let body = 'Encrypted';
+								let validSignature = true;
+								let signed: ISignedMessage | null = null;
 
 								if (!mail.isEncrypted) {
-									const signed = parseMessage(mail.message);
-									console.log(signed);
+									signed = parseMessage(mail.message);
+
 									if (signed) {
+										subject = signed.message.subject;
+										body = signed.message.body;
 										if (signed.signature !== '') {
-											// TODO: Checking signature
-											
+											const publicKeyDecoded = mail.senderInfo.publicKey;
 
+											const publicKey = decodePublicKey(publicKeyDecoded);
+											if (publicKey[0] === 0n || publicKey[1] === 0n) {
+												validSignature = false;
+											} else {
+												const messageSanitize = mail.message.split('<******>');
+												messageSanitize.pop();
+												const rawMessage = messageSanitize.join('<******>');
+												const [r, s] = decodeSignature(signed.signature);
 
-										} else {
-											subject = signed.message.subject;
-											body = signed.message.body;
+												validSignature = verify(rawMessage, r, s, publicKey);
+											}
 										}
 									}
 								}
@@ -123,6 +130,11 @@ const Home: React.FC = () => {
 											<div className="flex text-red-600 md:items-center">
 												<IonIcon icon={lockClosed} />
 												<span>Encrypted</span>
+											</div>
+										) : !signed || !validSignature ? (
+											<div className="flex items-center text-red-600 font-medium">
+												<IonIcon icon={banSharp} className="mr-1" />
+												<span>Signature Violation</span>
 											</div>
 										) : (
 											<div>
