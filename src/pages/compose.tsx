@@ -114,10 +114,10 @@ const Compose: React.FC = () => {
                   </div>
                   <div className="mt-2 flex flex-col gap-2">
                     {
-                      sign && <InputTextWithFile placeholder="Signature Key" value={signatureKey} setValue={setSignatureKey} />
+                      sign && <InputTextWithFile placeholder="Signature Key" className="w-full md:w-1/2" value={signatureKey} setValue={setSignatureKey} />
                     }
                     {
-                      encrypt && <InputTextWithFile placeholder="Encryption Key" value={encryptionKey} setValue={setEncryptionKey} />
+                      encrypt && <InputTextWithFile placeholder="Encryption Key" className="w-full md:w-1/2" value={encryptionKey} setValue={setEncryptionKey} />
                     }
                   </div>
                 </div>

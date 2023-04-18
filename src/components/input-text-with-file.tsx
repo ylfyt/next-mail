@@ -7,15 +7,16 @@ interface InputTextWithFileProps {
 	value: string;
 	placeholder?: string;
 	setValue: (value: React.SetStateAction<string>) => void;
+  className?: string
 }
 
-const InputTextWithFile: FC<InputTextWithFileProps> = ({ value, setValue, placeholder }) => {
+const InputTextWithFile: FC<InputTextWithFileProps> = ({ value, setValue, placeholder, className }) => {
 	const { showToast } = useHelperContext();
 
 	const fileRef = useRef<HTMLInputElement>(null);
 
 	return (
-		<div className="flex items-center">
+		<div className={`flex items-center ${className}`}>
 			<input
 				onChange={(e) => {
 					setValue(e.target.value);
@@ -23,7 +24,7 @@ const InputTextWithFile: FC<InputTextWithFileProps> = ({ value, setValue, placeh
 				value={value}
 				type="text"
 				placeholder={placeholder}
-				className="h-[40px] px-4 text-slate-600 relative bg-white rounded-l-lg text-sm border-2 border-e-0 border-slate-400 border-solid outline-none focus:outline-none focus:ring"
+				className="h-[40px] px-4 text-slate-600 relative bg-white rounded-l-lg text-sm border-2 border-e-0 border-slate-400 border-solid outline-none focus:outline-none focus:ring w-full"
 			/>
 
 			<input
