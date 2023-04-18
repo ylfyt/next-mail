@@ -72,7 +72,7 @@ const Compose: React.FC = () => {
                     <IonTitle>Compose</IonTitle>
                 </IonToolbar>
             </IonHeader>
-            <IonContent className="ion-padding">
+            <IonContent>
                 <IonItem>
                     <IonInput aria-label="from"  label="From" value={user?.email} labelPlacement="fixed" readonly={true}></IonInput>
                     <LoadingButton onClick={send} loading={loading} disabled={disableSend} className="text-2xl align-middle disabled:text-gray-400">
@@ -97,30 +97,32 @@ const Compose: React.FC = () => {
                     )
                 })}
 
-                <div className="flex flex-col mx-4 mt-6 gap-2">
-                  <div className="flex gap-6">
-                    <div className="flex items-center gap-2">
-                      <input checked={sign} onChange={(e) => {
-                        setSign(e.target.checked)
-                      }} type="checkbox" />
-                      <label>Sign</label>
+                <IonItem>
+                  <div className="flex flex-col w-full mt-6 gap-2">
+                    <div className="flex">
+                      <div className="flex items-center mr-6">
+                        <input className="mr-1" checked={sign} onChange={(e) => {
+                          setSign(e.target.checked)
+                        }} type="checkbox" />
+                        <label>Sign</label>
+                      </div>
+                      <div className="flex items-center">
+                        <input className="mr-1" checked={encrypt} onChange={(e) => {
+                          setEncrypt(e.target.checked)
+                        }} type="checkbox" />
+                        <label>Encrypt</label>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2">
-                      <input checked={encrypt} onChange={(e) => {
-                        setEncrypt(e.target.checked)
-                      }} type="checkbox" />
-                      <label>Encrypt</label>
+                    <div className="mt-2 flex flex-col gap-2">
+                      {
+                        sign && <InputTextWithFile placeholder="Signature Key" className="w-full md:w-1/2 mb-1" value={signatureKey} setValue={setSignatureKey} />
+                      }
+                      {
+                        encrypt && <InputTextWithFile placeholder="16 Digit Encryption Key" className="w-full md:w-1/2" value={encryptionKey} setValue={setEncryptionKey} />
+                      }
                     </div>
                   </div>
-                  <div className="mt-2 flex flex-col gap-2">
-                    {
-                      sign && <InputTextWithFile placeholder="Signature Key" className="w-full md:w-1/2" value={signatureKey} setValue={setSignatureKey} />
-                    }
-                    {
-                      encrypt && <InputTextWithFile placeholder="Encryption Key" className="w-full md:w-1/2" value={encryptionKey} setValue={setEncryptionKey} />
-                    }
-                  </div>
-                </div>
+                </IonItem>
             </IonContent>
         </IonPage>
     );

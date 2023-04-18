@@ -1,5 +1,5 @@
 import { IonButton, IonButtons, IonContent, IonHeader, IonIcon, IonMenuButton, IonPage, IonTitle, IonToolbar } from '@ionic/react';
-import { banSharp, exitOutline, lockClosed } from 'ionicons/icons';
+import { banSharp, exitOutline, keySharp, lockClosed } from 'ionicons/icons';
 import './Home.css';
 import { useEffect, useState } from 'react';
 import { useRootContext } from '../contexts/root';
@@ -10,12 +10,9 @@ import { IMail } from '../interfaces/mail';
 import { CollectionReference, collection, getDocs, query, where } from 'firebase/firestore';
 import Menu from '../components/menu';
 import ComposeFab from '../components/Compose-fab';
-import { IMessage, ISignedMessage } from '../interfaces/message';
-import { suffleDecrypt } from '../algorithms/shuffle-aes';
+import { ISignedMessage } from '../interfaces/message';
 import { Link } from 'react-router-dom';
 import { parseMessage } from '../utils/parse-message';
-import { verify, generatePublicKey } from '../algorithms/ecdsa';
-import { decodeSignature, decodePublicKey } from '../algorithms/encoderDecoder';
 
 const Home: React.FC = () => {
 	const [mails, setMails] = useState<IMail[]>([]);
@@ -87,12 +84,11 @@ const Home: React.FC = () => {
 							<IonTitle size="large">The Next Gen Email</IonTitle>
 						</IonToolbar>
 					</IonHeader>
-					<div className="h-full flex flex-col items-center text-black mt-4 md:w-1/2 md:mx-auto">
+					<div className="flex flex-col items-center text-black mt-4 md:w-1/2 md:mx-auto">
 						<div className="w-full text-sm text-left text-gray-500 px-2">
 							{mails.map((mail, idx) => {
 								let subject = 'Encrypted';
 								let body = 'Encrypted';
-								let validSignature = true;
 								let signed: ISignedMessage | null = null;
 
 								if (!mail.isEncrypted) {
@@ -101,21 +97,6 @@ const Home: React.FC = () => {
 									if (signed) {
 										subject = signed.message.subject;
 										body = signed.message.body;
-										if (signed.signature !== '') {
-											const publicKeyDecoded = mail.senderInfo.publicKey;
-
-											const publicKey = decodePublicKey(publicKeyDecoded);
-											if (publicKey[0] === 0n || publicKey[1] === 0n) {
-												validSignature = false;
-											} else {
-												const messageSanitize = mail.message.split('<******>');
-												messageSanitize.pop();
-												const rawMessage = messageSanitize.join('<******>');
-												const [r, s] = decodeSignature(signed.signature);
-
-												validSignature = verify(rawMessage, r, s, publicKey);
-											}
-										}
 									}
 								}
 
@@ -126,15 +107,25 @@ const Home: React.FC = () => {
 											<div>{new Date(mail.createdAt).toLocaleString()}</div>
 										</div>
 
-										{mail.isEncrypted ? (
-											<div className="flex text-red-600 md:items-center">
-												<IonIcon icon={lockClosed} />
-												<span>Encrypted</span>
+										{mail.isEncrypted || signed?.signature !== '' ? (
+											<div className="flex">
+												{mail.isEncrypted && (
+													<div className="flex text-orange-600 md:items-center mr-2">
+														<IonIcon className="mr-1" icon={lockClosed} />
+														<span className="text-xs">Encrypted</span>
+													</div>
+												)}
+												{signed?.signature !== '' && (
+													<div className="flex text-green-600 items-center">
+														<IonIcon className="mr-1" icon={keySharp} />
+														<span className="text-xs">Signed</span>
+													</div>
+												)}
 											</div>
-										) : !signed || !validSignature ? (
+										) : !signed ? (
 											<div className="flex items-center text-red-600 font-medium">
 												<IonIcon icon={banSharp} className="mr-1" />
-												<span>Signature Violation</span>
+												<span>Mail is broken</span>
 											</div>
 										) : (
 											<div>

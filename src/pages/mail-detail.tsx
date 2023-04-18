@@ -4,12 +4,12 @@ import { useHistory, useParams } from 'react-router';
 import { IMail } from '../interfaces/mail';
 import { DocumentReference, doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '../utils/firebase';
-import { IMessage, ISignedMessage } from '../interfaces/message';
+import { ISignedMessage } from '../interfaces/message';
 import InputTextWithFile from '../components/input-text-with-file';
 import LoadingButton from '../components/loading-button';
 import { suffleDecrypt } from '../algorithms/shuffle-aes';
 import { parseMessage } from '../utils/parse-message';
-import { attachSharp, documentAttachSharp } from 'ionicons/icons';
+import { documentAttachSharp } from 'ionicons/icons';
 import { useRootContext } from '../contexts/root';
 import { decodePublicKey, decodeSignature } from '../algorithms/encoderDecoder';
 import { verify } from '../algorithms/ecdsa';
@@ -166,7 +166,7 @@ const MailDetail: FC<MailDetailProps> = () => {
 					) : mail.isEncrypted && !signed ? (
 						<div className="flex w-full flex-col items-center justify-center">
 							<span className="text-3xl font-semibold mb-6">This mail is Encrypted</span>
-							<InputTextWithFile placeholder="Encryption Key" value={encryptionKey} setValue={setEncryptionKey} />
+							<InputTextWithFile placeholder="16 Digit Encryption Key" value={encryptionKey} setValue={setEncryptionKey} />
 							<LoadingButton disabled={encryptionKey.length !== 16 || !mail} onClick={decrypt} className="w-[100px] bg-blue-500 h-[40px] rounded-lg text-white shadow mt-2">
 								Open
 							</LoadingButton>
