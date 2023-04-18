@@ -7,6 +7,6 @@ export interface IMessage {
 }
 
 export interface ISignedMessage {
-	message: string;
+	message: IMessage;
 	signature: string;
 }

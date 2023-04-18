@@ -6,10 +6,13 @@ import { useHistory } from 'react-router';
 import { Link } from 'react-router-dom';
 import LoadingButton from '../components/loading-button';
 import { useHelperContext } from '../contexts/helper';
+import { useRootContext } from '../contexts/root';
 
 interface LoginProps {}
 
 const Login: FC<LoginProps> = () => {
+	const { loadingUser, user } = useRootContext();
+
 	const [loading, setLoading] = useState(false);
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
@@ -19,20 +22,24 @@ const Login: FC<LoginProps> = () => {
 	const { showToast } = useHelperContext();
 
 	useEffect(() => {
-		setLoading(false);
-	}, []);
+		if (!loadingUser && user) {
+			history.replace('inbox');
+		}
+	}, [loadingUser, user]);
 
 	const login = async () => {
 		try {
 			setLoading(true);
 			await signInWithEmailAndPassword(auth, email, password);
 			setLoading(false);
-			history.replace('/', {state : {email: email}});
+			history.replace('/', { state: { email: email } });
 		} catch (err) {
 			setLoading(false);
 			showToast('Email or password is incorrect');
 		}
 	};
+
+	if (loadingUser && !user) return <div>Loading...</div>;
 
 	return (
 		<IonPage>

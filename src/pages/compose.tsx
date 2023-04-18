@@ -22,8 +22,8 @@ const Compose: React.FC = () => {
 
     const [signatureKey, setSignatureKey] = useState('') 
     const [encryptionKey, setEncryptionKey] = useState('') 
-    const [sign, setSign] = useState(true)
-    const [encrypt, setEncrypt] = useState(true)
+    const [sign, setSign] = useState(false)
+    const [encrypt, setEncrypt] = useState(false)
 
     const openFileDialog = () => {
         (document as any).getElementById("file-upload").click();

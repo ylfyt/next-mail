@@ -1,17 +1,18 @@
-import { IonPage, IonButtons, IonHeader, IonContent, IonToolbar, IonTitle, IonIcon, IonButton, IonMenuButton } from "@ionic/react";
-import { useHistory, useLocation } from "react-router";
+import { IonPage, IonButtons, IonHeader, IonContent, IonToolbar, IonTitle, IonIcon, IonButton, IonMenuButton } from '@ionic/react';
+import { useHistory, useLocation } from 'react-router';
 import { exitOutline } from 'ionicons/icons';
-import "./compose.css";
-import { signOut } from "firebase/auth";
-import { auth, db } from "../utils/firebase";
-import Menu from "../components/menu";
-import { collection, CollectionReference, getDocs, query, where } from "firebase/firestore";
-import { useState, useEffect } from "react";
-import { useHelperContext } from "../contexts/helper";
-import { useRootContext } from "../contexts/root";
-import { IMail } from "../interfaces/mail";
-import ComposeFab from "../components/Compose-fab";
-import { IMessage, ISignedMessage } from "../interfaces/message";
+import './compose.css';
+import { signOut } from 'firebase/auth';
+import { auth, db } from '../utils/firebase';
+import Menu from '../components/menu';
+import { collection, CollectionReference, getDocs, query, where } from 'firebase/firestore';
+import { useState, useEffect } from 'react';
+import { useHelperContext } from '../contexts/helper';
+import { useRootContext } from '../contexts/root';
+import { IMail } from '../interfaces/mail';
+import ComposeFab from '../components/Compose-fab';
+import { IMessage, ISignedMessage } from '../interfaces/message';
+import { parseMessage } from '../utils/parse-message';
 
 const Sent: React.FC = () => {
 	const { state } = useLocation();
@@ -98,17 +99,17 @@ const Sent: React.FC = () => {
 							</thead>
 							<tbody>
 								{mails.map((mail, idx) => {
-                  let subject = 'Encrypted';
+									let subject = 'Encrypted';
 									let body = 'Encrypted';
 
 									if (!mail.isEncrypted) {
-										const signed = JSON.parse(mail.message) as ISignedMessage;
-										if (signed.signature !== '') {
+										const signed = parseMessage(mail.message);
+										if (signed?.signature !== '') {
 											// Checking signature
 										} else {
-											const message = JSON.parse(signed.message) as IMessage;
-											subject = message.subject;
-											body = message.body;
+											// const message = JSON.parse(signed.message) as IMessage;
+											// subject = message.subject;
+											// body = message.body;
 										}
 									}
 
@@ -129,6 +130,6 @@ const Sent: React.FC = () => {
 			</IonPage>
 		</>
 	);
-}
+};
 
 export default Sent;

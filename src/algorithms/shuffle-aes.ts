@@ -539,7 +539,7 @@ const decrypt = (data: Uint8Array, keyStr: string): Uint8Array => {
 
 	const keys = expansionKey(strToBytes(keyStr));
 	// console.log(keys);
-
+	let anyNull = false;
 	for (let i = 0; i < numOfBlocks; i++) {
 		let block = array2Matrix(getBlock(data, i), 4);
 
@@ -548,9 +548,19 @@ const decrypt = (data: Uint8Array, keyStr: string): Uint8Array => {
 		for (let j = 0; j < 4; j++) {
 			for (let k = 0; k < 4; k++) {
 				const el = block[k][j];
+				if (i === numOfBlocks - 1 && el === 0) anyNull = true;
 				data[i * 16 + (j * 4 + k)] = el;
 			}
 		}
+	}
+
+	if (anyNull) {
+		let last = data.length - 1;
+		for (let i = data.length - 1; i >= 0; i--) {
+			if (data[i] !== 0) break;
+			last = i;
+		}
+		data = data.slice(0, last);
 	}
 
 	return data;

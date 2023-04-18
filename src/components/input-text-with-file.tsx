@@ -23,7 +23,7 @@ const InputTextWithFile: FC<InputTextWithFileProps> = ({ value, setValue, placeh
 				value={value}
 				type="text"
 				placeholder={placeholder}
-				className="h-[40px] px-4 text-slate-600 relative bg-white rounded-s-lg text-sm border-2 border-e-0 border-slate-400 border-solid outline-none focus:outline-none focus:ring w-full md:w-1/2"
+				className="h-[40px] px-4 text-slate-600 relative bg-white rounded-l-lg text-sm border-2 border-e-0 border-slate-400 border-solid outline-none focus:outline-none focus:ring"
 			/>
 
 			<input
@@ -48,7 +48,7 @@ const InputTextWithFile: FC<InputTextWithFileProps> = ({ value, setValue, placeh
 				style={{ display: 'none' }}
 			/>
 			<button
-				className="text-xl text-slate-500 h-[40px] w-[40px] border-2 border-slate-400 border-solid focus:outline-none rounded-e-lg flex items-center justify-center"
+				className="text-xl text-slate-500 h-[40px] w-[40px] border-2 border-slate-400 border-solid focus:outline-none rounded-r-lg flex items-center justify-center"
 				onClick={() => {
 					fileRef.current?.click();
 				}}

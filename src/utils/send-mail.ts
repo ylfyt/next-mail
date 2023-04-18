@@ -43,32 +43,35 @@ export const sendMail = async (user: User, receiverEmail: string, { files, subje
 			return 'Receiver not found';
 		}
 
-		const attch = await uploadFiles(files, user!.uid, receiver.data().id);
+		let message = `${subject}<******>${body}`;
 
-		if (typeof attch === 'string') {
-			return attch;
+		if (files.length != 0) {
+			const attch = await uploadFiles(files, user!.uid, receiver.data().id);
+
+			if (typeof attch === 'string') {
+				return attch;
+			}
+
+			let attachments = ``;
+			for (let i = 0; i < attch.length; i++) {
+				const e = attch[i];
+				attachments += `${e.fileName}<>${e.originalFileName}<>${e.ext}`;
+				if (i !== attch.length - 1) {
+					attachments += '<***>';
+				}
+			}
+			message += `<******>${attachments}`;
 		}
-
-		const message = JSON.stringify({
-			subject,
-			body,
-			attachments: attch,
-		} as IMessage);
-
-		const signed: ISignedMessage = {
-			message: message,
-			signature: '',
-		};
 
 		if (signatureKey) {
-			signed.signature = 'dasbdklasmdlsam,ds'; // Sign
+			const signature = 'dasbdklasmdlsam,ds'; // Sign
+			message += `<******>${signature}`;
 		}
 
-		let encrypted = JSON.stringify(signed);
 		let isEncrypted = false;
 		if (encryptionKey) {
 			isEncrypted = true;
-			encrypted = await suffleEncrypt(encrypted, encryptionKey);
+			message = await suffleEncrypt(message, encryptionKey);
 		}
 
 		const mail = await saveMail(
@@ -78,7 +81,7 @@ export const sendMail = async (user: User, receiverEmail: string, { files, subje
 				publicKey: '',
 			},
 			receiver.data().id,
-			encrypted,
+			message,
 			isEncrypted
 		);
 

@@ -12,6 +12,8 @@ import Menu from '../components/menu';
 import ComposeFab from '../components/Compose-fab';
 import { IMessage, ISignedMessage } from '../interfaces/message';
 import { suffleDecrypt } from '../algorithms/shuffle-aes';
+import { Link } from 'react-router-dom';
+import { parseMessage } from '../utils/parse-message';
 
 const Home: React.FC = () => {
 	const [mails, setMails] = useState<IMail[]>([]);
@@ -45,7 +47,10 @@ const Home: React.FC = () => {
 
 			const temp: IMail[] = [];
 			snap.forEach((doc) => {
-				temp.push(doc.data());
+				temp.push({
+					id: doc.id,
+					...doc.data(),
+				});
 			});
 			setMails(temp);
 		})();
@@ -81,36 +86,36 @@ const Home: React.FC = () => {
 						</IonToolbar>
 					</IonHeader>
 					<div className="h-full flex flex-col items-center text-black mt-4 md:w-1/2 md:mx-auto">
-						<table className="w-full text-sm text-left text-gray-500">
-							<thead className="text-xs text-gray-700 uppercase bg-gray-50">
-								<tr>
-									<th scope="col" className="px-6 py-3">
+						<div className="w-full text-sm text-left text-gray-500">
+							<div className="text-xs text-gray-700 uppercase bg-gray-50 flex">
+								
+									<div className="px-6 py-3">
 										Sender
-									</th>
-									<th scope="col" className="px-6 py-3">
+									</div>
+									<div className="px-6 py-3">
 										Subject
-									</th>
-									<th scope="col" className="px-6 py-3">
+									</div>
+									<div className="px-6 py-3">
 										Body
-									</th>
-									<th scope="col" className="px-6 py-3">
+									</div>
+									<div className="px-6 py-3">
 										Sent date
-									</th>
-								</tr>
-							</thead>
-							<tbody>
+									</div>
+								
+							</div>
+							<div>
 								{mails.map((mail, idx) => {
 									let subject = 'Encrypted';
 									let body = 'Encrypted';
 
 									if (!mail.isEncrypted) {
-										const signed = JSON.parse(mail.message) as ISignedMessage;
-										if (signed.signature !== '') {
+                    const signed = parseMessage(mail.message)
+										if (signed?.signature !== '') {
 											// Checking signature
 										} else {
-											const message = JSON.parse(signed.message) as IMessage;
-											subject = message.subject;
-											body = message.body;
+											// const message = JSON.parse(signed.message) as IMessage;
+											// subject = message.subject;
+											// body = message.body;
 										}
 									} else {
 										// TODO: DELETE THIS
@@ -119,16 +124,16 @@ const Home: React.FC = () => {
 									}
 
 									return (
-										<tr key={idx} className={`bg-white border-b ${mail.readAt ? '' : 'text-gray-900 font-bold'}`}>
-											<td className="px-1 py-2">{mail.senderInfo?.email}</td>
-											<td className="px-1 py-4">{subject}</td>
-											<td className="px-1 py-4">{body}</td>
-											<td className="px-1 py-4">{new Date(mail.createdAt).toLocaleString()}</td>
-										</tr>
+										<Link key={idx} to={`/inbox/${mail.id}`} className={`bg-white border-b flex items-center ${mail.readAt ? '' : 'text-gray-900 font-bold'}`}>
+											<div className="px-1 py-2">{mail.senderInfo?.email}</div>
+											<div className="px-1 py-4">{subject}</div>
+											<div className="px-1 py-4">{body}</div>
+											<div className="px-1 py-4">{new Date(mail.createdAt).toLocaleString()}</div>
+										</Link>
 									);
 								})}
-							</tbody>
-						</table>
+							</div>
+						</div>
 					</div>
 					<ComposeFab />
 				</IonContent>
