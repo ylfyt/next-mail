@@ -40,7 +40,8 @@ const Compose: React.FC = () => {
         files, 
         subject, 
         body: message,
-        encryptionKey
+        encryptionKey:!encrypt ? "" : encryptionKey,
+        signatureKey:!sign ? "" : signatureKey
       })
       setLoading(false)
 

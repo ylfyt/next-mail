@@ -4,8 +4,11 @@ import { db } from './firebase';
 import { IMail } from '../interfaces/mail';
 import { uploadFiles } from './upload-file';
 import { User } from 'firebase/auth';
-import { IMessage, ISignedMessage } from '../interfaces/message';
 import { suffleEncrypt } from '../algorithms/shuffle-aes';
+import { generatePublicKey, signing } from '../algorithms/ecdsa';
+import { 
+	encodeSignature,
+	decodePrivateKey } from '../algorithms/encoderDecoder';
 
 const saveMail = async (senderInfo: IUserInfo, receiverId: string, message: string, isEncrypted: boolean): Promise<IMail | null> => {
 	const mail: IMail = {
@@ -64,8 +67,21 @@ export const sendMail = async (user: User, receiverEmail: string, { files, subje
 		}
 
 		if (signatureKey) {
-			const signature = 'dasbdklasmdlsam,ds'; // Sign
-			message += `<******>${signature}`;
+			// decode private key to bigint
+			console.log("privatekey:",signatureKey);
+			const privateKey = decodePrivateKey(signatureKey);
+			// generate public key (bigint) from private key
+			const publicKey = generatePublicKey(privateKey);
+			// generate signature
+			const signature = signing(message, publicKey, privateKey);
+			// encode signature
+			const signatureEncoded = encodeSignature(signature);
+			console.log("signatures",signatureEncoded);
+			// attach
+			// signed.signature = signatureEncoded; // Sign
+
+			// const signature = 'dasbdklasmdlsam,ds'; // Sign
+			message += `<******>${signatureEncoded}`;
 		}
 
 		let isEncrypted = false;

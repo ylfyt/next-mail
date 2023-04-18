@@ -131,14 +131,14 @@ function hashing(message: string): bigint {
 }
 
 // generate public key
-function generatePublicKey(privateKey: bigint): [bigint, bigint]{
+export function generatePublicKey(privateKey: bigint): [bigint, bigint]{
   const publicKey = applyDoubleAndAddMethod(base, privateKey, a, d, p);
   return publicKey;
 }
 
 
 // generate signature
-function signing(message: string, publicKey: [bigint, bigint], privateKey: bigint): [bigint, bigint] {
+export function signing(message: string, publicKey: [bigint, bigint], privateKey: bigint): [bigint, bigint] {
   const messageInt = textToInt(message);
   const r = hashing(String(hashing(String(messageInt)) + messageInt)) % p;
   const R = applyDoubleAndAddMethod(base, r, a, d, p);
@@ -151,7 +151,7 @@ function signing(message: string, publicKey: [bigint, bigint], privateKey: bigin
 }
 
 // verification signature
-function verify(message: string, r: bigint, sign: bigint, publicKey: [bigint, bigint]):boolean{
+export function verify(message: string, r: bigint, sign: bigint, publicKey: [bigint, bigint]):boolean{
 
   // hashing
   const messageInt = textToInt(message);
