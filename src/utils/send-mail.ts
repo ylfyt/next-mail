@@ -112,7 +112,7 @@ export const sendMail = async (user: User, receiverEmail: string, { files, subje
 				publicKey: publicKeyEncoded,
 			},
 			{
-				email: receiver.data().email,
+				email: receiver.data().email!,
 				id: receiver.data().id,
 				publicKey: receiver.data().publicKey
 			},

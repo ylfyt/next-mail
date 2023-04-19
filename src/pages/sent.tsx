@@ -113,7 +113,7 @@ const Sent: React.FC = () => {
 									return (
 										<Link key={idx} to={`/inbox/${mail.id}`} className="flex flex-col border-2 border-gray-500 p-1 rounded mb-2 hover:border-blue-500 relative">
 											<div className="flex justify-between mb-2 text-xs">
-												<div>To: {mail.receiverInfo?.email}</div>
+												<div>To: {mail.receiverInfo.email}</div>
 												<div>{new Date(mail.createdAt).toLocaleString()}</div>
 											</div>
 
