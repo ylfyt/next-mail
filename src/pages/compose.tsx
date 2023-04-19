@@ -1,4 +1,4 @@
-import { IonPage, IonBackButton, IonButtons, IonHeader, IonContent, IonToolbar, IonTitle, IonInput, IonItem, IonTextarea, IonIcon, IonButton, IonLabel } from "@ionic/react";
+import { IonPage, IonBackButton, IonButtons, IonHeader, IonContent, IonToolbar, IonTitle, IonInput, IonItem, IonTextarea, IonIcon, IonLabel } from "@ionic/react";
 import { useHistory } from "react-router";
 import { sendSharp, documentAttachSharp, documentTextSharp } from 'ionicons/icons';
 import "./compose.css";
@@ -30,8 +30,20 @@ const Compose: React.FC = () => {
     };
 
     const addFile = (_event: any) => {
-        let newFile = _event.target.files![0];
-        setFiles([...files, newFile])
+        const FILE_SIZE_LIMIT = 5.2 // MB
+        let file:File = _event.target.files![0];
+        _event.target.value = ''
+        if (file.size > FILE_SIZE_LIMIT * 1024 * 1024) {
+          showToast(`File size should be less than ${FILE_SIZE_LIMIT}MB`)
+          return
+        }
+
+        if (files.find(f => f.name === file.name)) {
+          showToast('File already added')
+          return
+        }
+
+        setFiles([...files, file])
     }
 
     const send = async () => {

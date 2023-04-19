@@ -4,15 +4,15 @@ Next Mail is an Email app built with Typescript + React + Ionic + Firebase
 
 ### Get the App
 
-- Web : https://ylfyt.github.io/the-next-gen-email.git
-- Android : https://github.com/ylfyt/the-next-gen-email/releases
+- Web : https://ylfyt.github.io/next-mail
+- Android : https://github.com/ylfyt/next-mail/releases
 
 ### How to Run
 
 - Clone this repository
 
 ```
-git clone https://github.com/ylfyt/the-next-gen-email.git
+git clone https://github.com/ylfyt/next-mail.git
 ```
 
 - Install all dependencies

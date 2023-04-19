@@ -6,6 +6,6 @@ export default defineConfig(({mode}) => {
   console.log(`Building the app with ${mode} mode...`);
   return {
     plugins: [react()],
-    base: mode === 'production:android' ? '/' : '/the-next-gen-email'
+    base: mode === 'production:android' ? '/' : '/next-mail'
   }
 })
