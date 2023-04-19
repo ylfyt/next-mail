@@ -225,7 +225,7 @@ const MailDetail: FC<MailDetailProps> = () => {
 								})}
 							</div>
 							<div className="text-sm mb-4 p-1 border-gray-200 border rounded min-h-[100px] relative">
-                <div className='absolute -top-5 right-1 text-red-500 font-semibold'>WARNING: Signature is not valid</div>
+								{!isValidSignature && <div className="absolute -top-5 right-1 text-red-500 font-semibold">WARNING: Signature is not valid</div>}
 								<span>{signed?.message.body}</span>
 								{signed?.signature !== '' && (
 									<>
