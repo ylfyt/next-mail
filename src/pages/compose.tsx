@@ -134,7 +134,7 @@ const Compose: React.FC = () => {
                         sign && <InputTextWithFile placeholder="Signature Key" className="w-full md:w-3/4 mb-1" value={signatureKey} setValue={setSignatureKey} />
                       }
                       {
-                        encrypt && <InputTextWithFile placeholder="16 Digit Encryption Key" className="w-full md:w-3/4" value={encryptionKey} setValue={setEncryptionKey} />
+                        encrypt && <InputTextWithFile placeholder="16 Digit Encryption Key" className="w-full md:w-3/4" value={encryptionKey} charLimit={16} setValue={setEncryptionKey} />
                       }
                     </div>
                   </div>

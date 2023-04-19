@@ -187,7 +187,7 @@ const MailDetail: FC<MailDetailProps> = () => {
 					) : mail.isEncrypted && !signed ? (
 						<div className="flex w-full flex-col items-center justify-center">
 							<span className="text-3xl font-semibold mb-6">This mail is Encrypted</span>
-							<InputTextWithFile placeholder="16 Digit Encryption Key" className='w-full px-6' value={encryptionKey} setValue={setEncryptionKey} />
+							<InputTextWithFile charLimit={16} placeholder="16 Digit Encryption Key" className='w-full px-6' value={encryptionKey} setValue={setEncryptionKey} />
 							<LoadingButton disabled={encryptionKey.length !== 16 || !mail} onClick={decrypt} className="w-[100px] bg-blue-500 h-[40px] rounded-lg text-white shadow mt-2">
 								Open
 							</LoadingButton>

@@ -13,6 +13,7 @@ import ComposeFab from '../components/Compose-fab';
 import { ISignedMessage } from '../interfaces/message';
 import { Link } from 'react-router-dom';
 import { parseMessage } from '../utils/parse-message';
+import MessageIllustrations from '../components/message-illustrations';
 
 const Home: React.FC = () => {
 	const [mails, setMails] = useState<IMail[]>([]);
@@ -83,60 +84,67 @@ const Home: React.FC = () => {
 					</IonToolbar>
 				</IonHeader>
 				<IonContent fullscreen>
-					<div className="flex flex-col items-center text-black mt-4 md:w-1/2 md:mx-auto">
-						<div className="w-full text-sm text-left text-gray-500 px-2">
-							{mails.map((mail, idx) => {
-								let subject = 'Encrypted';
-								let body = 'Encrypted';
-								let signed: ISignedMessage | null = null;
+					<div className="flex flex-col items-center text-black mt-4 md:w-1/2 md:mx-auto min-h-[80%]">
+						{mails.length === 0 ? (
+							<div className="flex flex-col items-center my-auto">
+								<MessageIllustrations width={200} />
+								<div className="mt-4 text-xl font-medium text-[#6C63FF]">You don't have any messages yet</div>
+							</div>
+						) : (
+							<div className="w-full text-sm text-left text-gray-500 px-2">
+								{mails.map((mail, idx) => {
+									let subject = 'Encrypted';
+									let body = 'Encrypted';
+									let signed: ISignedMessage | null = null;
 
-								if (!mail.isEncrypted) {
-									signed = parseMessage(mail.message);
+									if (!mail.isEncrypted) {
+										signed = parseMessage(mail.message);
 
-									if (signed) {
-										subject = signed.message.subject;
-										body = signed.message.body;
+										if (signed) {
+											subject = signed.message.subject;
+											body = signed.message.body;
+										}
 									}
-								}
 
-								return (
-									<Link key={idx} to={`/inbox/${mail.id}`} className="flex flex-col border-2 border-gray-500 p-1 rounded mb-2 hover:border-blue-500 relative">
-										<div className="flex justify-between mb-2 text-xs">
-											<div>{mail.senderInfo.email}</div>
-											<div>{new Date(mail.createdAt).toLocaleString()}</div>
-										</div>
+									return (
+										<Link key={idx} to={`/inbox/${mail.id}`} className="flex flex-col border-2 border-gray-500 p-1 rounded mb-2 hover:border-blue-500 relative">
+											<div className="flex justify-between mb-2 text-xs">
+												<div>{mail.senderInfo.email}</div>
+												<div>{new Date(mail.createdAt).toLocaleString()}</div>
+											</div>
 
-										{mail.isEncrypted || signed?.signature !== '' ? (
-											<div className="flex">
-												{mail.isEncrypted && (
-													<div className="flex text-orange-600 md:items-center mr-2">
-														<IonIcon className="mr-1" icon={lockClosed} />
-														<span className="text-xs">Encrypted</span>
-													</div>
-												)}
-												{signed?.signature !== '' && (
-													<div className="flex text-green-600 items-center">
-														<IonIcon className="mr-1" icon={keySharp} />
-														<span className="text-xs">Signed</span>
-													</div>
-												)}
-											</div>
-										) : !signed ? (
-											<div className="flex items-center text-red-600 font-medium">
-												<IonIcon icon={banSharp} className="mr-1" />
-												<span>Mail is broken</span>
-											</div>
-										) : (
-											<div>
-												<div className="font-bold md:font-semibold line-clamp-1 text-sm">{subject}</div>
-												<div className="text-xs line-clamp-2">{body}</div>
-											</div>
-										)}
-										{!mail.readAt && <div className="w-[10px] h-[10px] translate-x-1/2 -translate-y-1/2 bg-red-500 absolute top-0 right-0 rounded-full"></div>}
-									</Link>
-								);
-							})}
-						</div>
+											{mail.isEncrypted || signed?.signature !== '' ? (
+												<div className="flex">
+													{mail.isEncrypted && (
+														<div className="flex text-orange-600 md:items-center mr-2">
+															<IonIcon className="mr-1" icon={lockClosed} />
+															<span className="text-xs">Encrypted</span>
+														</div>
+													)}
+													{signed?.signature !== '' && (
+														<div className="flex text-green-600 items-center">
+															<IonIcon className="mr-1" icon={keySharp} />
+															<span className="text-xs">Signed</span>
+														</div>
+													)}
+												</div>
+											) : !signed ? (
+												<div className="flex items-center text-red-600 font-medium">
+													<IonIcon icon={banSharp} className="mr-1" />
+													<span>Mail is broken</span>
+												</div>
+											) : (
+												<div>
+													<div className="font-bold md:font-semibold line-clamp-1 text-sm">{subject}</div>
+													<div className="text-xs line-clamp-2">{body}</div>
+												</div>
+											)}
+											{!mail.readAt && <div className="w-[10px] h-[10px] translate-x-1/2 -translate-y-1/2 bg-red-500 absolute top-0 right-0 rounded-full"></div>}
+										</Link>
+									);
+								})}
+							</div>
+						)}
 					</div>
 					<ComposeFab />
 				</IonContent>
