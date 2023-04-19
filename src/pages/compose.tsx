@@ -9,7 +9,11 @@ import { sendMail } from "../utils/send-mail";
 import { useHelperContext } from "../contexts/helper";
 import InputTextWithFile from "../components/input-text-with-file";
 import { generatePrivateKey } from "../algorithms/privateKeyGenerator"
-import { encodePrivateKey } from "../algorithms/encoderDecoder";
+import { generatePublicKey } from "../algorithms/ecdsa";
+import { encodePrivateKey, encodePublicKey } from "../algorithms/encoderDecoder";
+
+
+
 
 const Compose: React.FC = () => {
     const history = useHistory()
@@ -22,7 +26,8 @@ const Compose: React.FC = () => {
     const [message, setMessage] = useState<string>('');
     const [files, setFiles] = useState<File[]>([]);
 
-    const [signatureKey, setSignatureKey] = useState('') 
+    const [signatureKey, setSignatureKey] = useState('') // private key
+    const [publicKey, setPublicKey] = useState('') // public key
     const [encryptionKey, setEncryptionKey] = useState('') 
     const [sign, setSign] = useState(false)
     const [encrypt, setEncrypt] = useState(false)
@@ -69,19 +74,39 @@ const Compose: React.FC = () => {
     }
 
     const handleGenerateKey = async () => {
-      const privateKey : bigint = generatePrivateKey();
-      const privateKeyEncode : string = encodePrivateKey(privateKey);
-      setSignatureKey(privateKeyEncode);
+      // generate keys
+      const privateKeyBigInt : bigint = generatePrivateKey();
+      const publicKeyBigInt : [bigint, bigint] = generatePublicKey(privateKeyBigInt);
+      
+      // encode keys
+      const privateKeyEncoded : string = encodePrivateKey(privateKeyBigInt);
+      const publicKeyEncoded : string = encodePublicKey(publicKeyBigInt);
+
+      // set
+      setSignatureKey(privateKeyEncoded);
+      setPublicKey(publicKeyEncoded);
     }
 
-    const handleDownloadKeyButtonClick =async () => {
-      const key = signatureKey;
-      const element = document.createElement("a");
-      const file = new Blob([key], {type: 'text/plain'});
-      element.href = URL.createObjectURL(file);
-      element.download = "private-key.txt";
-      document.body.appendChild(element);
-      element.click();
+    const handleDownloadKeyButtonClick = async () => {
+      const privateKey = signatureKey;
+      // public key already define on useState
+      
+      // Download Private Key
+      const privateKeyElement = document.createElement("a");
+      const privateKeyFile = new Blob([privateKey], {type: 'text/plain'});
+      privateKeyElement.href = URL.createObjectURL(privateKeyFile);
+      privateKeyElement.download = "private-key.txt";
+      document.body.appendChild(privateKeyElement);
+      privateKeyElement.click();
+
+      // Download Private Key
+      const publicKeyElement = document.createElement("a");
+      const publicKeyFile = new Blob([publicKey], {type: 'text/plain'});
+      publicKeyElement.href = URL.createObjectURL(publicKeyFile);
+      publicKeyElement.download = "public-key.txt";
+      document.body.appendChild(publicKeyElement);
+      publicKeyElement.click();
+
     }
 
     const disableSend = !message || !receiver || !subject || (sign && !signatureKey) || (encrypt && encryptionKey.length !== 16)
@@ -151,10 +176,10 @@ const Compose: React.FC = () => {
                       {
                         sign && (
                           <IonButtons>
-                            <InputTextWithFile placeholder="Signature Key" className="w-full md:w-3/4 mb-1" value={signatureKey} setValue={setSignatureKey} />
+                            <InputTextWithFile placeholder="Private Key" className="w-full md:w-3/4 mb-1" value={signatureKey} setValue={setSignatureKey} />
                             <IonButton style={{ margin: '0 8px' }} onClick={ handleGenerateKey }>Generate Key</IonButton>
                             { signatureKey && (
-                              <IonButton style={{ margin: '0 8px' }} onClick={ handleDownloadKeyButtonClick }>Download Key</IonButton>
+                              <IonButton style={{ margin: '0 8px' }} onClick={ handleDownloadKeyButtonClick }>Download Keys</IonButton>
                             )}
                           </IonButtons>
                       )}
