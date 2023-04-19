@@ -20,6 +20,8 @@ const Home: React.FC = () => {
 	const { user, loadingUser } = useRootContext();
 	const history = useHistory();
 
+	const [loading, setLoading] = useState(true);
+
 	useEffect(() => {
 		if (loadingUser || user) return;
 
@@ -44,18 +46,25 @@ const Home: React.FC = () => {
 		(async () => {
 			const mailCollection = collection(db, 'mail') as CollectionReference<IMail>;
 			const mailQuery = query(mailCollection, where('receiverInfo.id', '==', user.uid), orderBy('createdAt', 'desc'));
-			unsub = onSnapshot(mailQuery, (snap) => {
-				if (!mounted) return;
+			unsub = onSnapshot(
+				mailQuery,
+				(snap) => {
+					if (!mounted) return;
 
-				const temp: IMail[] = [];
-				snap.forEach((doc) => {
-					temp.push({
-						id: doc.id,
-						...doc.data(),
+					const temp: IMail[] = [];
+					snap.forEach((doc) => {
+						temp.push({
+							id: doc.id,
+							...doc.data(),
+						});
 					});
-				});
-				setMails(temp);
-			});
+					setMails(temp);
+					setLoading(false);
+				},
+				(err) => {
+					setLoading(false);
+				}
+			);
 		})();
 
 		return () => {
@@ -64,7 +73,7 @@ const Home: React.FC = () => {
 		};
 	}, [user]);
 
-	if (loadingUser || !user) return <div>Loading...</div>;
+	if (loadingUser || !user) return <div className="w-full bg-white h-full flex items-center justify-center text-blue-500 text-2xl font-medium">Please wait...</div>;
 
 	return (
 		<>
@@ -80,12 +89,17 @@ const Home: React.FC = () => {
 								<IonIcon icon={exitOutline}></IonIcon>
 							</IonButton>
 						</IonButtons>
-						<IonTitle>Next Email</IonTitle>
+						<IonTitle>Inbox</IonTitle>
 					</IonToolbar>
 				</IonHeader>
 				<IonContent fullscreen>
 					<div className="flex flex-col items-center text-black mt-4 md:w-1/2 md:mx-auto min-h-[80%]">
-						{mails.length === 0 ? (
+						{loading ? (
+							<div
+								className="w-12 h-12 rounded-full animate-spin
+                    border-2 border-solid border-blue-500 border-t-transparent mt-auto mb-auto"
+							></div>
+						) : mails.length === 0 ? (
 							<div className="flex flex-col items-center my-auto">
 								<MessageIllustrations width={200} />
 								<div className="mt-4 text-xl font-medium text-[#6C63FF]">You don't have any messages yet</div>
@@ -121,7 +135,7 @@ const Home: React.FC = () => {
 															<span className="text-xs">Encrypted</span>
 														</div>
 													)}
-													{signed?.signature !== '' && (
+													{signed && signed.signature !== '' && (
 														<div className="flex text-green-600 items-center">
 															<IonIcon className="mr-1" icon={keySharp} />
 															<span className="text-xs">Signed</span>

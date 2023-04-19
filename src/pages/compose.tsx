@@ -1,4 +1,4 @@
-import { IonPage, IonBackButton, IonButtons, IonButton, IonHeader, IonContent, IonToolbar, IonTitle, IonInput, IonItem, IonTextarea, IonIcon, IonLabel } from "@ionic/react";
+import { IonPage, IonBackButton, IonButtons, IonButton, IonHeader, IonContent, IonToolbar, IonTitle, IonInput, IonItem, IonTextarea, IonIcon, IonLabel, isPlatform } from "@ionic/react";
 import { useHistory } from "react-router";
 import { sendSharp, documentAttachSharp, documentTextSharp } from 'ionicons/icons';
 import "./compose.css";
@@ -11,9 +11,7 @@ import InputTextWithFile from "../components/input-text-with-file";
 import { generatePrivateKey } from "../algorithms/privateKeyGenerator"
 import { generatePublicKey } from "../algorithms/ecdsa";
 import { encodePrivateKey, encodePublicKey } from "../algorithms/encoderDecoder";
-
-
-
+import { Directory, Encoding, Filesystem } from '@capacitor/filesystem'
 
 const Compose: React.FC = () => {
     const history = useHistory()
@@ -28,6 +26,8 @@ const Compose: React.FC = () => {
 
     const [signatureKey, setSignatureKey] = useState('') // private key
     const [publicKey, setPublicKey] = useState('') // public key
+    const [isGenerated, setIsGenerated] = useState(false)
+
     const [encryptionKey, setEncryptionKey] = useState('') 
     const [sign, setSign] = useState(false)
     const [encrypt, setEncrypt] = useState(false)
@@ -85,16 +85,43 @@ const Compose: React.FC = () => {
       // set
       setSignatureKey(privateKeyEncoded);
       setPublicKey(publicKeyEncoded);
+      setIsGenerated(true)
     }
 
-    const handleDownloadKeyButtonClick = async () => {
+    const handleDownloadKeyButtonClick = async () => {      
       const privateKey = signatureKey;
       // public key already define on useState
+      
+      if (isPlatform('android')) {
+        Filesystem.writeFile({
+          path: 'private-key.txt',
+          data: privateKey,
+          directory: Directory.Documents,
+          encoding: Encoding.UTF8
+        }).then(res => {
+          showToast(`File downloaded to Documents/private-key.txt`)
+        }).catch(err => {
+          showToast(`Failed to save generated key: ${err.message}`)
+        })
+
+        Filesystem.writeFile({
+          path: 'public-key.txt',
+          data: publicKey,
+          directory: Directory.Documents,
+          encoding: Encoding.UTF8
+        }).then(res => {
+          showToast(`File saved to Documents/public-key.txt`)
+        }).catch(err => {
+          showToast(`Failed to save generated key: ${err.message}`)
+        })
+        return
+      }
       
       // Download Private Key
       const privateKeyElement = document.createElement("a");
       const privateKeyFile = new Blob([privateKey], {type: 'text/plain'});
       privateKeyElement.href = URL.createObjectURL(privateKeyFile);
+      
       privateKeyElement.download = "private-key.txt";
       document.body.appendChild(privateKeyElement);
       privateKeyElement.click();
@@ -106,7 +133,6 @@ const Compose: React.FC = () => {
       publicKeyElement.download = "public-key.txt";
       document.body.appendChild(publicKeyElement);
       publicKeyElement.click();
-
     }
 
     const disableSend = !message || !receiver || !subject || (sign && !signatureKey) || (encrypt && encryptionKey.length !== 16)
@@ -116,13 +142,13 @@ const Compose: React.FC = () => {
             <IonHeader>
                 <IonToolbar>
                     <IonButtons slot="start">
-                        <IonBackButton defaultHref="/"></IonBackButton>
+                        <IonBackButton defaultHref="/inbox"></IonBackButton>
                     </IonButtons>
                     <IonTitle>Compose</IonTitle>
                 </IonToolbar>
             </IonHeader>
-            <IonContent>
-              <div className="md:w-1/2 md:mx-auto pt-4">
+            <IonContent fullscreen>
+              <div className="md:w-1/2 md:mx-auto pt-4 pb-10">
                 <IonItem>
                     <IonInput aria-label="from"  label="From" value={user?.email} labelPlacement="fixed" readonly={true}></IonInput>
                     <LoadingButton onClick={send} loading={loading} disabled={disableSend} className="text-2xl align-middle disabled:text-gray-400">
@@ -175,13 +201,16 @@ const Compose: React.FC = () => {
                     <div className="mt-2 flex px-1 flex-col gap-2">
                       {
                         sign && (
-                          <IonButtons>
+                          <div className="mb-2">
                             <InputTextWithFile placeholder="Private Key" className="w-full md:w-3/4 mb-1" value={signatureKey} setValue={setSignatureKey} />
-                            <IonButton style={{ margin: '0 8px' }} onClick={ handleGenerateKey }>Generate Key</IonButton>
-                            { signatureKey && (
-                              <IonButton style={{ margin: '0 8px' }} onClick={ handleDownloadKeyButtonClick }>Download Keys</IonButton>
-                            )}
-                          </IonButtons>
+                            <div className="text-sm">
+                              <button className="bg-blue-500 text-white px-2 py-1 rounded shadow-sm mr-4" onClick={ handleGenerateKey }>Generate Key</button>
+                              { 
+                              signatureKey && isGenerated && (
+                              <button className="bg-green-500 text-white px-2 py-1 rounded shadow-sm" onClick={ handleDownloadKeyButtonClick }>Download Keys</button>
+                              )}
+                            </div>
+                          </div>
                       )}
                       {
                         encrypt && <InputTextWithFile placeholder="16 Digit Encryption Key" className="w-full md:w-3/4" value={encryptionKey} charLimit={16} setValue={setEncryptionKey} />

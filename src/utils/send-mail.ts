@@ -6,10 +6,7 @@ import { uploadFiles } from './upload-file';
 import { User } from 'firebase/auth';
 import { suffleEncrypt } from '../algorithms/shuffle-aes';
 import { generatePublicKey, signing } from '../algorithms/ecdsa';
-import { 
-	encodeSignature,
-	decodePrivateKey, 
-	encodePublicKey} from '../algorithms/encoderDecoder';
+import { encodeSignature, decodePrivateKey, encodePublicKey } from '../algorithms/encoderDecoder';
 
 const saveMail = async (senderInfo: IUserInfo, receiverInfo: IUserInfo, message: string, isEncrypted: boolean): Promise<IMail | null> => {
 	const mail: IMail = {
@@ -40,12 +37,11 @@ interface IMailInfo {
 
 export const sendMail = async (user: User, receiverEmail: string, { files, subject, body, encryptionKey, signatureKey }: IMailInfo): Promise<string | IMail> => {
 	try {
-		
-		if (signatureKey){
+		if (signatureKey) {
 			const privateKey = decodePrivateKey(signatureKey);
-			
-			if (privateKey === 0n){
-				return "Signature Key is not valid";
+
+			if (privateKey === 0n) {
+				return 'Signature Key is not valid';
 			}
 		}
 
@@ -75,7 +71,7 @@ export const sendMail = async (user: User, receiverEmail: string, { files, subje
 			}
 			message += `<******>${attachments}`;
 		}
-		let publicKeyEncoded = "";
+		let publicKeyEncoded = '';
 		if (signatureKey) {
 			// decode private key to bigint
 			// console.log("privatekey:",signatureKey);
@@ -88,15 +84,15 @@ export const sendMail = async (user: User, receiverEmail: string, { files, subje
 			const signature = signing(message, publicKey, privateKey);
 			// encode signature
 			const signatureEncoded = encodeSignature(signature);
-			console.log("signatures",signatureEncoded);
+			// console.log('signatures', signatureEncoded);
 			// attach
 			// signed.signature = signatureEncoded; // Sign
 
-      if (files.length !== 0) {
-        message += `<******>${signatureEncoded}`;
-      } else {
-        message += `<******><#ds>${signatureEncoded}`;
-      }
+			if (files.length !== 0) {
+				message += `<******>${signatureEncoded}`;
+			} else {
+				message += `<******><#ds>${signatureEncoded}`;
+			}
 		}
 
 		let isEncrypted = false;
@@ -112,9 +108,9 @@ export const sendMail = async (user: User, receiverEmail: string, { files, subje
 				publicKey: publicKeyEncoded,
 			},
 			{
-				email: receiver.data().email!,
+				email: receiver.data().email,
 				id: receiver.data().id,
-				publicKey: receiver.data().publicKey
+				publicKey: '',
 			},
 			message,
 			isEncrypted

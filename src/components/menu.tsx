@@ -15,14 +15,14 @@ const Menu: React.FC = () => {
                 <IonContent className="ion-padding">
                     <IonList lines="none">
                         <br />
-                        <Link to="/inbox">
+                        <Link to="/inbox" replace>
                             <IonItem>
                                 <IonIcon icon={mail} slot="start" />
                                 <IonLabel slot="start">Inbox</IonLabel>
                             </IonItem>
                         </Link>
                         <br />
-                        <Link to="/sent">
+                        <Link to="/sent" replace>
                             <IonItem>
                                 <IonIcon icon={sendSharp} slot="start" />
                                 <IonLabel slot="start">Sent</IonLabel>
