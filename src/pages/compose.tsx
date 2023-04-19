@@ -1,4 +1,4 @@
-import { IonPage, IonBackButton, IonButtons, IonHeader, IonContent, IonToolbar, IonTitle, IonInput, IonItem, IonTextarea, IonIcon, IonLabel } from "@ionic/react";
+import { IonPage, IonBackButton, IonButtons, IonButton, IonHeader, IonContent, IonToolbar, IonTitle, IonInput, IonItem, IonTextarea, IonIcon, IonLabel } from "@ionic/react";
 import { useHistory } from "react-router";
 import { sendSharp, documentAttachSharp, documentTextSharp } from 'ionicons/icons';
 import "./compose.css";
@@ -8,6 +8,8 @@ import LoadingButton from "../components/loading-button";
 import { sendMail } from "../utils/send-mail";
 import { useHelperContext } from "../contexts/helper";
 import InputTextWithFile from "../components/input-text-with-file";
+import { generatePrivateKey } from "../algorithms/privateKeyGenerator"
+import { encodePrivateKey } from "../algorithms/encoderDecoder";
 
 const Compose: React.FC = () => {
     const history = useHistory()
@@ -64,6 +66,22 @@ const Compose: React.FC = () => {
       
       showToast('Success')
       history.goBack()
+    }
+
+    const handleGenerateKey = async () => {
+      const privateKey : bigint = generatePrivateKey();
+      const privateKeyEncode : string = encodePrivateKey(privateKey);
+      setSignatureKey(privateKeyEncode);
+    }
+
+    const handleDownloadKeyButtonClick =async () => {
+      const key = signatureKey;
+      const element = document.createElement("a");
+      const file = new Blob([key], {type: 'text/plain'});
+      element.href = URL.createObjectURL(file);
+      element.download = "private-key.txt";
+      document.body.appendChild(element);
+      element.click();
     }
 
     const disableSend = !message || !receiver || !subject || (sign && !signatureKey) || (encrypt && encryptionKey.length !== 16)
@@ -131,8 +149,15 @@ const Compose: React.FC = () => {
                     </div>
                     <div className="mt-2 flex px-1 flex-col gap-2">
                       {
-                        sign && <InputTextWithFile placeholder="Signature Key" className="w-full md:w-3/4 mb-1" value={signatureKey} setValue={setSignatureKey} />
-                      }
+                        sign && (
+                          <IonButtons>
+                            <InputTextWithFile placeholder="Signature Key" className="w-full md:w-3/4 mb-1" value={signatureKey} setValue={setSignatureKey} />
+                            <IonButton style={{ margin: '0 8px' }} onClick={ handleGenerateKey }>Generate Key</IonButton>
+                            { signatureKey && (
+                              <IonButton style={{ margin: '0 8px' }} onClick={ handleDownloadKeyButtonClick }>Download Key</IonButton>
+                            )}
+                          </IonButtons>
+                      )}
                       {
                         encrypt && <InputTextWithFile placeholder="16 Digit Encryption Key" className="w-full md:w-3/4" value={encryptionKey} charLimit={16} setValue={setEncryptionKey} />
                       }
