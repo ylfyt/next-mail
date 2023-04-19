@@ -43,7 +43,7 @@ const Home: React.FC = () => {
 
 		(async () => {
 			const mailCollection = collection(db, 'mail') as CollectionReference<IMail>;
-			const mailQuery = query(mailCollection, where('receiverId', '==', user.uid), orderBy('createdAt', 'desc'));
+			const mailQuery = query(mailCollection, where('receiverInfo.id', '==', user.uid), orderBy('createdAt', 'desc'));
 			unsub = onSnapshot(mailQuery, (snap) => {
 				if (!mounted) return;
 

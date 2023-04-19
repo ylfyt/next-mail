@@ -11,9 +11,9 @@ import {
 	decodePrivateKey, 
 	encodePublicKey} from '../algorithms/encoderDecoder';
 
-const saveMail = async (senderInfo: IUserInfo, receiverId: string, message: string, isEncrypted: boolean): Promise<IMail | null> => {
+const saveMail = async (senderInfo: IUserInfo, receiverInfo: IUserInfo, message: string, isEncrypted: boolean): Promise<IMail | null> => {
 	const mail: IMail = {
-		receiverId,
+		receiverInfo,
 		senderInfo,
 		message,
 		isEncrypted,
@@ -111,7 +111,11 @@ export const sendMail = async (user: User, receiverEmail: string, { files, subje
 				id: user!.uid,
 				publicKey: publicKeyEncoded,
 			},
-			receiver.data().id,
+			{
+				email: receiver.data().email,
+				id: receiver.data().id,
+				publicKey: receiver.data().publicKey
+			},
 			message,
 			isEncrypted
 		);

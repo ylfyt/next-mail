@@ -51,7 +51,7 @@ const MailDetail: FC<MailDetailProps> = () => {
 
 			if (data.isEncrypted) return;
 
-			if (!data.readAt && data.receiverId === user?.uid) {
+			if (!data.readAt && data.receiverInfo.id === user?.uid) {
 				setDoc(docRef, {
 					...data,
 					readAt: new Date().getTime(),
@@ -104,7 +104,7 @@ const MailDetail: FC<MailDetailProps> = () => {
 			try {
 				const temp: string[] = [];
 				for (const attach of signed.message.attachments) {
-					const path = `attachments/${mail.senderInfo.id}:${mail.receiverId}/${attach.fileName}.${attach.ext}`;
+					const path = `attachments/${mail.senderInfo.id}:${mail.receiverInfo.id}/${attach.fileName}.${attach.ext}`;
 					const url = await getDownloadURL(ref(storage, path));
 					temp.push(url);
 				}
@@ -126,7 +126,7 @@ const MailDetail: FC<MailDetailProps> = () => {
 			return;
 		}
 
-		if (!mail.readAt && mail.receiverId === user?.uid) {
+		if (!mail.readAt && mail.receiverInfo.id === user?.uid) {
 			setDoc(doc(db, 'mail', id), {
 				...mail,
 				readAt: new Date().getTime(),

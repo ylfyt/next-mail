@@ -1,11 +1,11 @@
 import { IonPage, IonButtons, IonHeader, IonContent, IonToolbar, IonTitle, IonIcon, IonButton, IonMenuButton } from '@ionic/react';
 import { useHistory, useLocation } from 'react-router';
-import { exitOutline } from 'ionicons/icons';
+import { banSharp, exitOutline, keySharp, lockClosed } from 'ionicons/icons';
 import './compose.css';
-import { signOut } from 'firebase/auth';
+import { Unsubscribe, signOut } from 'firebase/auth';
 import { auth, db } from '../utils/firebase';
 import Menu from '../components/menu';
-import { collection, CollectionReference, getDocs, query, where } from 'firebase/firestore';
+import { collection, CollectionReference, getDocs, onSnapshot, orderBy, query, where } from 'firebase/firestore';
 import { useState, useEffect } from 'react';
 import { useHelperContext } from '../contexts/helper';
 import { useRootContext } from '../contexts/root';
@@ -13,6 +13,8 @@ import { IMail } from '../interfaces/mail';
 import ComposeFab from '../components/Compose-fab';
 import { IMessage, ISignedMessage } from '../interfaces/message';
 import { parseMessage } from '../utils/parse-message';
+import { Link } from 'react-router-dom';
+import MessageIllustrations from '../components/message-illustrations';
 
 const Sent: React.FC = () => {
 	const { state } = useLocation();
@@ -41,20 +43,27 @@ const Sent: React.FC = () => {
 	useEffect(() => {
 		if (!user) return;
 		let mounted = true;
+		let unsub: Unsubscribe | null;
 
 		(async () => {
 			const mailCollection = collection(db, 'mail') as CollectionReference<IMail>;
-			const snap = await getDocs(query(mailCollection, where('senderInfo.id', '==', user.uid)));
-			if (!mounted) return;
+			const mailQuery = query(mailCollection, where('senderInfo.id', '==', user.uid), orderBy('createdAt', 'desc'));
+			unsub = onSnapshot(mailQuery, (snap) => {
+				if (!mounted) return;
 
-			const temp: IMail[] = [];
-			snap.forEach((doc) => {
-				temp.push(doc.data());
+				const temp: IMail[] = [];
+				snap.forEach((doc) => {
+					temp.push({
+						id: doc.id,
+						...doc.data(),
+					});
+				});
+				setMails(temp);
 			});
-			setMails(temp);
 		})();
 
 		return () => {
+			unsub && unsub();
 			mounted = false;
 		};
 	}, [user]);
@@ -78,52 +87,68 @@ const Sent: React.FC = () => {
 						<IonTitle>Next Email</IonTitle>
 					</IonToolbar>
 				</IonHeader>
-				<IonContent className="ion-padding">
-					<div className="h-full flex flex-col items-center text-black mt-4 md:w-1/2 md:mx-auto">
-						<table className="w-full text-sm text-left text-gray-500">
-							<thead className="text-xs text-gray-700 uppercase bg-gray-50">
-								<tr>
-									<th scope="col" className="px-6 py-3">
-										Receiver
-									</th>
-									<th scope="col" className="px-6 py-3">
-										Subject
-									</th>
-									<th scope="col" className="px-6 py-3">
-										Body
-									</th>
-									<th scope="col" className="px-6 py-3">
-										Sent date
-									</th>
-								</tr>
-							</thead>
-							<tbody>
+				<IonContent fullscreen>
+					<div className="flex flex-col items-center text-black mt-4 md:w-1/2 md:mx-auto min-h-[80%]">
+						{mails.length === 0 ? (
+							<div className="flex flex-col items-center my-auto">
+								<MessageIllustrations width={200} />
+								<div className="mt-4 text-xl font-medium text-[#6C63FF]">You haven't sent any messages yet</div>
+							</div>
+						) : (
+							<div className="w-full text-sm text-left text-gray-500 px-2">
 								{mails.map((mail, idx) => {
 									let subject = 'Encrypted';
 									let body = 'Encrypted';
+									let signed: ISignedMessage | null = null;
 
 									if (!mail.isEncrypted) {
-										const signed = parseMessage(mail.message);
-										if (signed?.signature !== '') {
-											// Checking signature
-										} else {
-											// const message = JSON.parse(signed.message) as IMessage;
-											// subject = message.subject;
-											// body = message.body;
+										signed = parseMessage(mail.message);
+
+										if (signed) {
+											subject = signed.message.subject;
+											body = signed.message.body;
 										}
 									}
 
 									return (
-										<tr key={idx} className={`bg-white border-b ${mail.readAt ? '' : 'text-gray-900 font-bold'}`}>
-											<td className="px-1 py-2">{mail.senderInfo?.email}</td>
-											<td className="px-1 py-4">{subject}</td>
-											<td className="px-1 py-4">{body}</td>
-											<td className="px-1 py-4">{new Date(mail.createdAt).toLocaleString()}</td>
-										</tr>
+										<Link key={idx} to={`/inbox/${mail.id}`} className="flex flex-col border-2 border-gray-500 p-1 rounded mb-2 hover:border-blue-500 relative">
+											<div className="flex justify-between mb-2 text-xs">
+												<div>To: {mail.receiverInfo?.email}</div>
+												<div>{new Date(mail.createdAt).toLocaleString()}</div>
+											</div>
+
+											{mail.isEncrypted || signed?.signature !== '' ? (
+												<div className="flex">
+													{mail.isEncrypted && (
+														<div className="flex text-orange-600 md:items-center mr-2">
+															<IonIcon className="mr-1" icon={lockClosed} />
+															<span className="text-xs">Encrypted</span>
+														</div>
+													)}
+													{signed?.signature !== '' && (
+														<div className="flex text-green-600 items-center">
+															<IonIcon className="mr-1" icon={keySharp} />
+															<span className="text-xs">Signed</span>
+														</div>
+													)}
+												</div>
+											) : !signed ? (
+												<div className="flex items-center text-red-600 font-medium">
+													<IonIcon icon={banSharp} className="mr-1" />
+													<span>Mail is broken</span>
+												</div>
+											) : (
+												<div>
+													<div className="font-bold md:font-semibold line-clamp-1 text-sm">{subject}</div>
+													<div className="text-xs line-clamp-2">{body}</div>
+												</div>
+											)}
+											{!mail.readAt && <div className="w-[10px] h-[10px] translate-x-1/2 -translate-y-1/2 bg-red-500 absolute top-0 right-0 rounded-full"></div>}
+										</Link>
 									);
 								})}
-							</tbody>
-						</table>
+							</div>
+						)}
 					</div>
 					<ComposeFab />
 				</IonContent>

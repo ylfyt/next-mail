@@ -3,7 +3,7 @@ import { IUserInfo } from './user-info';
 export interface IMail {
 	id?: string;
 	senderInfo: IUserInfo;
-	receiverId: string;
+	receiverInfo: IUserInfo;
 	message: string;
 	isEncrypted: boolean;
 	createdAt: number;
