@@ -25,6 +25,7 @@ const MailDetail: FC<MailDetailProps> = () => {
 	const [loading, setLoading] = useState(false);
 	const [mail, setMail] = useState<IMail>();
 	const [signed, setSigned] = useState<ISignedMessage>();
+	const [isValidSignature, setIsValidSignature] = useState(true);
 	const [encryptionKey, setEncryptionKey] = useState('');
 
 	const [errorMessage, setErrorMessage] = useState('');
@@ -66,6 +67,7 @@ const MailDetail: FC<MailDetailProps> = () => {
 				return;
 			}
 
+			setSigned(msg);
 			if (msg.signature !== '') {
 				// get public key
 				const publicKeyEncoded: string = data.senderInfo.publicKey;
@@ -73,7 +75,8 @@ const MailDetail: FC<MailDetailProps> = () => {
 				const publicKey = decodePublicKey(publicKeyEncoded);
 
 				if (publicKey[0] === 0n || publicKey[1] === 0n) {
-					setErrorMessage('Signature Violation');
+					setIsValidSignature(false);
+					// setErrorMessage('Signature Violation');
 					return;
 				}
 
@@ -88,12 +91,11 @@ const MailDetail: FC<MailDetailProps> = () => {
 				// verify
 				const valid = verify(rawMessage, r, s, publicKey);
 				if (!valid) {
-					setErrorMessage('Signature Violation');
+					setIsValidSignature(false);
+					// setErrorMessage('Signature Violation');
 					return;
 				}
 			}
-
-			setSigned(msg);
 		})();
 	}, []);
 
@@ -135,6 +137,7 @@ const MailDetail: FC<MailDetailProps> = () => {
 			});
 		}
 
+		setSigned(msg);
 		if (msg.signature !== '') {
 			// get public key
 			const publicKeyEncoded = mail.senderInfo.publicKey;
@@ -142,7 +145,8 @@ const MailDetail: FC<MailDetailProps> = () => {
 			const publicKey = decodePublicKey(publicKeyEncoded);
 
 			if (publicKey[0] === 0n || publicKey[1] === 0n) {
-				setErrorMessage('Signature Violation');
+				setIsValidSignature(false);
+				// setErrorMessage('Signature Violation');
 				return;
 			}
 
@@ -157,12 +161,11 @@ const MailDetail: FC<MailDetailProps> = () => {
 			// verify
 			const valid = verify(rawMessage, r, s, publicKey);
 			if (!valid) {
-				setErrorMessage('Signature Violation');
+				setIsValidSignature(false);
+				// setErrorMessage('Signature Violation');
 				return;
 			}
 		}
-
-		setSigned(msg);
 	};
 
 	return (
@@ -170,9 +173,9 @@ const MailDetail: FC<MailDetailProps> = () => {
 			<IonHeader>
 				<IonToolbar>
 					<IonButtons slot="start">
-						<IonBackButton defaultHref='/inbox'></IonBackButton>
+						<IonBackButton defaultHref="/inbox"></IonBackButton>
 					</IonButtons>
-          <IonTitle>{signed?.message.subject}</IonTitle>
+					<IonTitle>{signed?.message.subject}</IonTitle>
 				</IonToolbar>
 			</IonHeader>
 			<IonContent>
@@ -187,7 +190,7 @@ const MailDetail: FC<MailDetailProps> = () => {
 					) : mail.isEncrypted && !signed ? (
 						<div className="flex w-full flex-col items-center justify-center">
 							<span className="text-3xl font-semibold mb-6">This mail is Encrypted</span>
-							<InputTextWithFile charLimit={16} placeholder="16 Digit Encryption Key" className='w-full px-6' value={encryptionKey} setValue={setEncryptionKey} />
+							<InputTextWithFile charLimit={16} placeholder="16 Digit Encryption Key" className="w-full px-6" value={encryptionKey} setValue={setEncryptionKey} />
 							<LoadingButton disabled={encryptionKey.length !== 16 || !mail} onClick={decrypt} className="w-[100px] bg-blue-500 h-[40px] rounded-lg text-white shadow mt-2">
 								Open
 							</LoadingButton>
@@ -195,7 +198,13 @@ const MailDetail: FC<MailDetailProps> = () => {
 					) : (
 						<div className="w-full px-2 flex flex-col">
 							<div className="text-lg font-medium mt-2 flex items-center">
-								{signed?.signature !== '' && <IonIcon title="Signature is valid" icon={keySharp} className="text-green-500 mr-2 text-base" />}
+								{signed?.signature !== '' && (
+									<IonIcon
+										title={isValidSignature ? 'Signature is valid' : 'Signature is not valid'}
+										icon={keySharp}
+										className={`${isValidSignature ? 'text-green-500' : 'text-red-500'} mr-2 text-base`}
+									/>
+								)}
 								<span className="">{signed?.message.subject}</span>
 							</div>
 							<div className="text-xs mb-2">
@@ -215,7 +224,20 @@ const MailDetail: FC<MailDetailProps> = () => {
 									);
 								})}
 							</div>
-							<div className="text-sm mb-4 p-1 border-gray-200 border rounded min-h-[100px]">{signed?.message.body}</div>
+							<div className="text-sm mb-4 p-1 border-gray-200 border rounded min-h-[100px] relative">
+                <div className='absolute -top-5 right-1 text-red-500 font-semibold'>WARNING: Signature is not valid</div>
+								<span>{signed?.message.body}</span>
+								{signed?.signature !== '' && (
+									<>
+										<br />
+										<br />
+										<br />
+										<div className="text-center">---- Begin of digital signature ----</div>
+										<div className="uppercase text-center">{signed?.signature}</div>
+										<div className="text-center">---- End of digital signature ----</div>
+									</>
+								)}
+							</div>
 						</div>
 					)}
 				</div>
